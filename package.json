@@ -1,0 +1,16 @@
+{
+  "name": "wedding-planner",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@wedding-planner/api",
+    "db:migrate": "npm run db:migrate --workspace=@wedding-planner/api",
+    "db:migrate:dev": "npm run db:migrate:dev --workspace=@wedding-planner/api",
+    "db:seed": "npm run db:seed --workspace=@wedding-planner/api",
+    "db:init": "npm run db:init --workspace=@wedding-planner/api"
+  },
+  "engines": { "node": ">=20" }
+}

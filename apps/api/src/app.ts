@@ -1,0 +1,15 @@
+import cors from 'cors';
+import express from 'express';
+import { errorHandler } from './lib/errors.js';
+import authRoutes from './modules/auth/auth.routes.js';
+import weddingRoutes from './modules/wedding-settings/wedding.routes.js';
+import guestRoutes from './modules/guests/guests.routes.js';
+import budgetRoutes from './modules/budget/budget.routes.js';
+import taskRoutes from './modules/tasks/tasks.routes.js';
+
+export const app = express();
+app.use(cors()); app.use(express.json());
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.use('/api/auth', authRoutes); app.use('/api/wedding', weddingRoutes); app.use('/api/guests', guestRoutes); app.use('/api/budget-items', budgetRoutes); app.use('/api/tasks', taskRoutes);
+app.use(errorHandler);
+
