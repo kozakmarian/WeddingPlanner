@@ -1,3 +1,12 @@
-// Guest queries will always filter by the authenticated user's wedding ID.
-export {};
-
+import { prisma } from '../../lib/prisma.js';
+import { AppError } from '../../lib/errors.js';
+import type { z } from 'zod';
+import type { createGuestSchema, updateGuestSchema } from './guests.schemas.js';
+type CreateInput = z.infer<typeof createGuestSchema>; type UpdateInput = z.infer<typeof updateGuestSchema>;
+async function weddingId(userId: string) { const wedding = await prisma.wedding.findUnique({ where: { userId }, select: { id: true } }); if (!wedding) throw new AppError(404, 'Wedding not found.', 'NOT_FOUND'); return wedding.id; }
+async function owned(id: string, userId: string) { const item = await prisma.guest.findFirst({ where: { id, weddingId: await weddingId(userId) } }); if (!item) throw new AppError(404, 'Guest not found.', 'NOT_FOUND'); return item; }
+export async function list(userId: string) { return prisma.guest.findMany({ where: { weddingId: await weddingId(userId) }, orderBy: { createdAt: 'desc' } }); }
+export async function get(id: string, userId: string) { return owned(id, userId); }
+export async function create(userId: string, data: CreateInput) { return prisma.guest.create({ data: { ...data, weddingId: await weddingId(userId) } }); }
+export async function update(id: string, userId: string, data: UpdateInput) { await owned(id, userId); return prisma.guest.update({ where: { id }, data }); }
+export async function remove(id: string, userId: string) { await owned(id, userId); await prisma.guest.delete({ where: { id } }); }

@@ -16,7 +16,7 @@ A full-stack wedding planning application built as an npm-workspaces monorepo.
 
 The API starts at `http://localhost:3000` and Vite prints the web URL (normally `http://localhost:5173`). The health endpoint is `GET /api/health`.
 
-The seed creates `demo@weddingplanner.test` with password `password123` plus a complete sample wedding. Authentication and CRUD behaviour are intentionally scaffolded for the next implementation phase.
+The seed creates `demo@weddingplanner.test` with password `password123` plus a complete sample wedding.
 
 ## Commands
 
@@ -28,6 +28,26 @@ The seed creates `demo@weddingplanner.test` with password `password123` plus a c
 | `npm run db:init` | Safely initialize a new SQLite database from the committed migration and seed it |
 | `npm run db:migrate` | Apply committed Prisma migrations |
 | `npm run db:migrate:dev` | Create a new migration during development |
+| `npm test --workspace=@wedding-planner/api` | Initialize an isolated database in `C:/tmp` and run API integration tests |
+
+## API
+
+All non-auth endpoints require `Authorization: Bearer <token>`. Registration creates the user's only wedding automatically. Bodies and URL ids are validated; errors use `{ "error": { "code", "message" } }` (validation errors also include `details`).
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/api/auth/register` | Create an account, wedding, and JWT |
+| POST | `/api/auth/login` | Obtain a JWT |
+| GET | `/api/auth/me` | Get the authenticated user |
+| GET, PUT | `/api/wedding` | Read or update the caller's wedding settings |
+| GET, POST | `/api/guests` | List or create guests |
+| GET, PUT, DELETE | `/api/guests/:id` | Manage one guest |
+| GET, POST | `/api/budget` | List or create budget items |
+| GET, PUT, DELETE | `/api/budget/:id` | Manage one budget item |
+| GET, POST | `/api/tasks` | List or create tasks |
+| GET, PUT, DELETE | `/api/tasks/:id` | Manage one task |
+
+`/api/budget-items` remains available as a compatibility alias. Set `JWT_SECRET` to a long random value and optionally set `FRONTEND_ORIGIN` (defaults to `http://localhost:5173`) for CORS.
 
 ## Project layout
 
