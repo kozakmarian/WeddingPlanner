@@ -30,6 +30,7 @@ export function DashboardPage() {
   const actual = budget.data!.reduce((sum, item) => sum + (item.actualCost ?? 0), 0);
   const estimated = budget.data!.reduce((sum, item) => sum + item.estimatedCost, 0);
   const complete = tasks.data!.filter((task) => task.completed).length;
+  const couple = [wedding.data!.groomName, wedding.data!.brideName].filter(Boolean).join(' & ');
   const cards = [
     [
       t('dashboard.guests'),
@@ -58,10 +59,7 @@ export function DashboardPage() {
   ] as const;
   return (
     <section>
-      <PageHeader
-        eyebrow={t('dashboard.eyebrow')}
-        title={wedding.data!.name || t('dashboard.yourWedding')}
-      >
+      <PageHeader title={couple || wedding.data!.name || t('dashboard.yourWedding')}>
         <p className="text-sm text-[var(--text-muted)]">
           {new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(
             new Date(wedding.data!.date),
@@ -88,7 +86,7 @@ export function DashboardPage() {
             {t('dashboard.celebration')}
           </p>
           <h2 className="mt-3 font-serif text-3xl font-bold text-[var(--text)]">
-            {wedding.data!.location}
+            {couple || wedding.data!.name}
           </h2>
           <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
             {t('dashboard.celebrationSummary')}

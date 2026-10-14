@@ -14,6 +14,8 @@ async function main() {
     where: { userId: user.id },
     update: {
       name: 'Alex & Sam',
+      groomName: 'Alex',
+      brideName: 'Sam',
       date: new Date('2027-06-12'),
       location: 'Chateau Bela',
       budget: 25000,
@@ -21,6 +23,8 @@ async function main() {
     create: {
       userId: user.id,
       name: 'Alex & Sam',
+      groomName: 'Alex',
+      brideName: 'Sam',
       date: new Date('2027-06-12'),
       location: 'Chateau Bela',
       budget: 25000,

@@ -25,8 +25,13 @@ model User {
 model Wedding {
   id        String       @id @default(cuid())
   userId    String       @unique
+  // Kept for records created before the separate partner-name fields existed.
+  // It is deliberately not parsed during migration because that would be lossy.
   name      String
+  groomName String?
+  brideName String?
   date      DateTime
+  // Retained for backwards-compatible historical data; no longer edited in the UI.
   location  String
   budget    Decimal      @default(0)
   createdAt DateTime     @default(now())

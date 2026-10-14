@@ -2,21 +2,31 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
-import { Button, Card, Field, Input, Notice, PageHeader, Select, State } from '../../components/ui';
+import {
+  Button,
+  Card,
+  DateInput,
+  Field,
+  Input,
+  Notice,
+  PageHeader,
+  Select,
+  State,
+} from '../../components/ui';
 import { supportedLanguages } from '../../i18n';
 
 export function WeddingSettingsPage() {
   const { t, i18n } = useTranslation();
   const client = useQuery({ queryKey: ['wedding'], queryFn: api.wedding });
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: '', date: '', location: '', budget: '0' });
+  const [form, setForm] = useState({ groomName: '', brideName: '', date: '', budget: '0' });
   const [success, setSuccess] = useState('');
   useEffect(() => {
     if (client.data)
       setForm({
-        name: client.data.name,
+        groomName: client.data.groomName ?? '',
+        brideName: client.data.brideName ?? '',
         date: client.data.date.slice(0, 10),
-        location: client.data.location,
         budget: String(client.data.budget),
       });
   }, [client.data]);
@@ -41,38 +51,36 @@ export function WeddingSettingsPage() {
     event.preventDefault();
     setSuccess('');
     save.mutate({
-      name: form.name,
+      groomName: form.groomName,
+      brideName: form.brideName,
       date: form.date,
-      location: form.location,
       budget: Number(form.budget),
     });
   };
   return (
     <section>
-      <PageHeader eyebrow={t('settings.eyebrow')} title={t('settings.title')} />
+      <PageHeader title={t('settings.title')} />
       <div className="grid max-w-2xl gap-5">
         <Card>
-          <p className="mb-6 text-sm text-[var(--text-muted)]">{t('settings.summary')}</p>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
-            <Field label={t('settings.name')}>
+            <Field label={t('settings.groomName')}>
               <Input
-                value={form.name}
-                onChange={(event) => setForm({ ...form, name: event.target.value })}
+                value={form.groomName}
+                onChange={(event) => setForm({ ...form, groomName: event.target.value })}
+                required
+              />
+            </Field>
+            <Field label={t('settings.brideName')}>
+              <Input
+                value={form.brideName}
+                onChange={(event) => setForm({ ...form, brideName: event.target.value })}
                 required
               />
             </Field>
             <Field label={t('settings.date')}>
-              <Input
-                type="date"
+              <DateInput
                 value={form.date}
                 onChange={(event) => setForm({ ...form, date: event.target.value })}
-                required
-              />
-            </Field>
-            <Field label={t('settings.location')}>
-              <Input
-                value={form.location}
-                onChange={(event) => setForm({ ...form, location: event.target.value })}
                 required
               />
             </Field>
@@ -104,9 +112,7 @@ export function WeddingSettingsPage() {
           </form>
         </Card>
         <Card>
-          <h2 className="text-lg font-bold text-[var(--text)]">{t('settings.language')}</h2>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">{t('settings.languageSummary')}</p>
-          <label className="mt-4 block text-sm font-semibold text-[var(--text)]">
+          <label className="block text-sm font-semibold text-[var(--text)]">
             <span>{t('settings.language')}</span>
             <Select
               value={i18n.language}

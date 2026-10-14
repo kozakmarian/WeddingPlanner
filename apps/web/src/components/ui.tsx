@@ -4,6 +4,7 @@ import type {
   ReactNode,
   SelectHTMLAttributes,
 } from 'react';
+import { IoCalendarOutline } from 'react-icons/io5';
 const join = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(' ');
 export function Button({
   className,
@@ -60,6 +61,15 @@ export const Input = ({ className, ...props }: InputHTMLAttributes<HTMLInputElem
     {...props}
   />
 );
+export const DateInput = ({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) => (
+  <div className="relative mt-1.5">
+    <Input type="date" className={join('mt-0 pr-10', className)} {...props} />
+    <IoCalendarOutline
+      aria-hidden="true"
+      className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-lg text-[var(--primary)]"
+    />
+  </div>
+);
 export const Select = ({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) => (
   <select
     className={join(
@@ -81,25 +91,12 @@ export function Card({ children, className }: { children: ReactNode; className?:
     </div>
   );
 }
-export function PageHeader({
-  eyebrow,
-  title,
-  children,
-}: {
-  eyebrow?: string;
-  title: string;
-  children?: ReactNode;
-}) {
+export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        {eyebrow && (
-          <p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-[var(--primary)]">
-            {eyebrow}
-          </p>
-        )}
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--text)]">{title}</h1>
-      </div>
+      <h1 className="font-serif text-3xl font-bold tracking-tight text-[var(--primary)] sm:text-4xl">
+        {title}
+      </h1>
       {children}
     </div>
   );

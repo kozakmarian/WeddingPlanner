@@ -52,7 +52,6 @@ export function TasksPage() {
           {t('tasks.pending', { count: query.data?.filter((task) => !task.completed).length ?? 0 })}
         </p>
       </PageHeader>
-      <p className="-mt-5 mb-6 text-[var(--text-muted)]">{t('tasks.subtitle')}</p>
       <Card>
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
           <Field label={t('tasks.task')}>

@@ -6,6 +6,8 @@ export type Wedding = {
   id: string;
   userId: string;
   name: string;
+  groomName: string | null;
+  brideName: string | null;
   date: string;
   location: string;
   budget: number;
@@ -80,7 +82,7 @@ export const api = {
     }),
   me: () => request<{ user: User }>('/auth/me'),
   wedding: () => request<Wedding>('/wedding'),
-  updateWedding: (input: Pick<Wedding, 'name' | 'date' | 'location' | 'budget'>) =>
+  updateWedding: (input: Pick<Wedding, 'groomName' | 'brideName' | 'date' | 'budget'>) =>
     request<Wedding>('/wedding', { method: 'PUT', body: JSON.stringify(input) }),
   guests: () => request<Guest[]>('/guests'),
   createGuest: (input: Omit<Guest, 'id'>) =>

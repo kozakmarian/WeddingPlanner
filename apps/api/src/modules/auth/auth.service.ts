@@ -16,6 +16,8 @@ export async function register(email: string, password: string) {
         data: {
           userId: created.id,
           name: 'My Wedding',
+          groomName: null,
+          brideName: null,
           date: new Date(),
           location: 'To be decided',
         },

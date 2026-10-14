@@ -75,14 +75,16 @@ test('authentication, validation, wedding settings, CRUD, and tenant isolation',
     method: 'PUT',
     headers: auth,
     body: JSON.stringify({
-      name: 'A & B',
+      groomName: 'Alex',
+      brideName: 'Blair',
       date: '2028-01-02',
-      location: 'Bratislava',
       budget: 1000,
     }),
   });
   assert.equal(weddingUpdate.response.status, 200);
-  assert.equal(weddingUpdate.body.name, 'A & B');
+  assert.equal(weddingUpdate.body.groomName, 'Alex');
+  assert.equal(weddingUpdate.body.brideName, 'Blair');
+  assert.equal(weddingUpdate.body.name, 'Alex & Blair');
 
   const guest = await request('/api/guests', {
     method: 'POST',

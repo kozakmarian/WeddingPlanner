@@ -1,5 +1,13 @@
 # Wedding Planner
 
+## Wedding names migration
+
+`20261014120000_add_partner_names` adds nullable `groomName` and `brideName` columns without
+changing the legacy `name` or `location` values. Existing combined wedding names are deliberately
+not split because their format cannot be determined safely. After deployment, open Settings and
+enter both names; saving writes the new fields and updates the legacy display name for backwards
+compatibility. Run `npm run db:migrate` (or `npm run db:init` only for a new SQLite database).
+
 A full-stack wedding planning application built as an npm-workspaces monorepo.
 
 ## Prerequisites

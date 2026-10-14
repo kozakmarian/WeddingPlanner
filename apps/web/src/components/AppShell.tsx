@@ -54,7 +54,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-[var(--background-secondary)] md:flex">
-      <aside className="hidden min-h-screen w-72 shrink-0 flex-col bg-[var(--background-dark)] p-6 text-white md:flex">
+      <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background-dark)] p-6 text-white md:flex">
         <div className="mb-12 flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-2xl bg-[var(--primary)] text-xl">
             ♥
@@ -68,10 +68,10 @@ export function AppShell() {
         <div className="mt-auto border-t border-white/15 pt-5">
           <p className="truncate text-sm text-[#e8d5c0]">{user?.email}</p>
           <button
-            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white underline-offset-4 hover:underline"
+            className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-[#e8d5c0] transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]"
             onClick={signOut}
           >
-            <IoLogOutOutline aria-hidden="true" />
+            <IoLogOutOutline aria-hidden="true" className="text-lg" />
             {t('nav.logout')}
           </button>
         </div>

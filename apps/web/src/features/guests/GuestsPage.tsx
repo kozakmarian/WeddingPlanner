@@ -62,19 +62,19 @@ export function GuestsPage() {
       accompanyingGuests: String(g.accompanyingGuests),
     });
   }
-  if (q.isLoading) return <State>Loading guests…</State>;
+  if (q.isLoading) return <State>{t('guests.loading')}</State>;
   if (q.isError)
     return (
       <State>
-        Could not load guests.{' '}
+        {t('guests.error')}{' '}
         <button className="underline" onClick={() => q.refetch()}>
-          Try again
+          {t('common.tryAgain')}
         </button>
       </State>
     );
   return (
     <section>
-      <PageHeader eyebrow={t('guests.eyebrow')} title={t('guests.title')}>
+      <PageHeader title={t('guests.title')}>
         <p className="text-sm text-[var(--text-muted)]">
           {t('guests.invited', { count: q.data!.length })}
         </p>
@@ -96,9 +96,9 @@ export function GuestsPage() {
               value={f.attendance}
               onChange={(e) => setF({ ...f, attendance: e.target.value as Guest['attendance'] })}
             >
-              <option value="PENDING">Pending</option>
-              <option value="ATTENDING">Attending</option>
-              <option value="DECLINED">Declined</option>
+              <option value="PENDING">{t('guests.pending')}</option>
+              <option value="ATTENDING">{t('guests.attending')}</option>
+              <option value="DECLINED">{t('guests.declined')}</option>
             </Select>
           </Field>
           <Field label={t('guests.plusOnes')}>
@@ -133,17 +133,18 @@ export function GuestsPage() {
       )}
       <div className="mt-5 grid gap-3">
         {q.data!.length === 0 ? (
-          <State>No guests yet. Add the first person above.</State>
+          <State>{t('guests.empty')}</State>
         ) : (
           q.data!.map((g) => (
             <Card key={g.id} className="flex flex-wrap items-center gap-3 py-4">
               <div className="min-w-40 flex-1">
                 <p className="font-bold">{g.name}</p>
                 <p className="text-sm text-[var(--text-muted)]">
-                  {g.email ?? 'No email provided'} · {g.accompanyingGuests} plus ones
+                  {g.email ?? t('guests.noEmail')} ·{' '}
+                  {t('guests.plusOnesCount', { count: g.accompanyingGuests })}
                 </p>
               </div>
-              <Badge tone={tone[g.attendance]}>{g.attendance.toLowerCase()}</Badge>
+              <Badge tone={tone[g.attendance]}>{t(`guests.${g.attendance.toLowerCase()}`)}</Badge>
               <RecordActions
                 onEdit={() => start(g)}
                 onDelete={() => {

@@ -13,5 +13,9 @@ export async function getWedding(userId: string) {
 }
 export async function updateWedding(userId: string, data: UpdateWedding) {
   const wedding = await ownedWedding(userId);
-  return prisma.wedding.update({ where: { id: wedding.id }, data });
+  return prisma.wedding.update({
+    where: { id: wedding.id },
+    // `name` remains as the legacy display fallback for pre-migration records.
+    data: { ...data, name: `${data.groomName} & ${data.brideName}` },
+  });
 }

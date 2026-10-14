@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,6 @@ if (existsSync(databasePath)) {
 }
 
 const databaseUrl = 'file:' + databasePath.replaceAll('\\', '/');
-const migrationFile = resolve(apiRoot, 'prisma/migrations/20261013211500_init/migration.sql');
 
 function run(args) {
   const result = spawnSync(['npx', 'prisma', ...args].join(' '), {
@@ -35,6 +34,14 @@ function run(args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+const migrationFiles = readdirSync(resolve(apiRoot, 'prisma/migrations'), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => resolve(apiRoot, 'prisma/migrations', entry.name, 'migration.sql'))
+  .filter(existsSync)
+  .sort();
+
 run(['generate']);
-run(['db', 'execute', '--schema', 'prisma/schema.prisma', '--file', migrationFile]);
+for (const migrationFile of migrationFiles) {
+  run(['db', 'execute', '--schema', 'prisma/schema.prisma', '--file', migrationFile]);
+}
 run(['db', 'seed']);

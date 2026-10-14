@@ -2,11 +2,22 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, type BudgetItem } from '../../lib/api';
-import { Button, Card, Field, Input, Notice, PageHeader } from '../../components/ui';
+import { Button, Card, Field, Input, Notice, PageHeader, Select } from '../../components/ui';
 import { RecordActions } from '../../components/actions/RecordActions';
 import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/AsyncState';
 import { getLocale } from '../../i18n';
 const blank = { name: '', category: '', estimatedCost: '0', actualCost: '' };
+const categories = [
+  'Venue',
+  'Catering',
+  'Photography',
+  'Attire',
+  'Flowers',
+  'Decor',
+  'Music',
+  'Transport',
+  'Other',
+] as const;
 export function BudgetPage() {
   const { t, i18n } = useTranslation();
   const query = useQuery({ queryKey: ['budget'], queryFn: api.budget });
@@ -70,11 +81,20 @@ export function BudgetPage() {
             />
           </Field>
           <Field label={t('budget.category')}>
-            <Input
+            <Select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               required
-            />
+            >
+              <option value="" disabled>
+                {t('budget.categoryPlaceholder')}
+              </option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {t(`budget.categories.${category}`)}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label={t('budget.estimatedCost')}>
             <Input
@@ -154,7 +174,7 @@ export function BudgetPage() {
               {items.map((item) => (
                 <tr key={item.id} className="border-t border-stone-100">
                   <td className="p-3 font-medium">{item.name}</td>
-                  <td className="p-3">{item.category}</td>
+                  <td className="p-3">{t(`budget.categories.${item.category}`, item.category)}</td>
                   <td className="p-3">{money.format(item.estimatedCost)}</td>
                   <td className="p-3">
                     {item.actualCost == null
