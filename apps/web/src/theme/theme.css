@@ -14,6 +14,7 @@
   --on-dark: #fff;
   --background: #fdfcfa;
   --background-secondary: #f5e6d3;
+  --celebration-background: var(--beige-light);
   --background-dark: #2c2c2c;
   --success: #6b8e4b;
   --error: #c44536;
@@ -30,6 +31,7 @@
 [data-theme='dark'] {
   --background: #1a1a1a;
   --background-secondary: #2c2c2c;
+  --celebration-background: var(--background-secondary);
   --text: #fff;
   --text-muted: #b0b0b0;
   --text-light: #808080;

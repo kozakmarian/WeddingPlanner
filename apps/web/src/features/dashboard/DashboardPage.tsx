@@ -70,7 +70,7 @@ export function DashboardPage() {
             </p>
           </div>
         </Card>
-        <Card className="flex flex-col justify-center bg-[var(--beige-light)]">
+        <Card className="flex flex-col justify-center bg-[var(--celebration-background)]">
           <p className="text-xs font-bold uppercase tracking-[.18em] text-[var(--primary)]">
             {t('dashboard.celebration')}
           </p>

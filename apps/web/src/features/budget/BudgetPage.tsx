@@ -66,7 +66,7 @@ export function BudgetPage() {
   return (
     <section>
       <PageHeader title={t('budget.title')}>
-        <div className="flex flex-col items-end gap-1 text-right text-sm">
+        <div className="flex flex-col items-start gap-1 text-left text-sm">
           <span>
             <b>{money.format(wedding.data?.budget ?? 0)}</b> {t('budget.totalBudget')}
           </span>
