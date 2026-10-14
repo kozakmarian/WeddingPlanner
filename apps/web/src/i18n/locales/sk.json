@@ -79,8 +79,8 @@
   },
   "budget": {
     "title": "Rozpočet",
-    "estimated": "odhad",
-    "actual": "skutočné",
+    "totalBudget": "Celkový rozpočet",
+    "remainingBudget": "Zostávajúci rozpočet",
     "item": "Položka",
     "category": "Kategória",
     "categoryPlaceholder": "Vyberte kategóriu",
@@ -95,8 +95,7 @@
       "Transport": "Doprava",
       "Other": "Ostatné"
     },
-    "estimatedCost": "Odhad",
-    "actualCost": "Skutočné",
+    "price": "Cena",
     "save": "Uložiť položku",
     "add": "Pridať položku",
     "updated": "Položka rozpočtu bola aktualizovaná.",
@@ -110,7 +109,7 @@
   "tasks": {
     "title": "Úlohy",
     "subtitle": "Naplánujte každý detail na jednom mieste.",
-    "pending": "{{count}} čaká",
+    "pending": "{{count}} ostáva",
     "task": "Úloha",
     "description": "Popis",
     "dueDate": "Termín",

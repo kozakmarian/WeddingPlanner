@@ -79,8 +79,8 @@
   },
   "budget": {
     "title": "Budget",
-    "estimated": "estimated",
-    "actual": "actual",
+    "totalBudget": "Total Budget",
+    "remainingBudget": "Remaining Budget",
     "item": "Item",
     "category": "Category",
     "categoryPlaceholder": "Select a category",
@@ -95,8 +95,7 @@
       "Transport": "Transport",
       "Other": "Other"
     },
-    "estimatedCost": "Estimated",
-    "actualCost": "Actual",
+    "price": "Price",
     "save": "Save item",
     "add": "Add item",
     "updated": "Budget item updated.",

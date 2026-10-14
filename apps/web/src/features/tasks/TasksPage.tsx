@@ -4,9 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { api, type Task } from '../../lib/api';
 import { Button, Card, Field, Input, Notice, PageHeader, State } from '../../components/ui';
 import { RecordActions } from '../../components/actions/RecordActions';
+import { getLocale } from '../../i18n';
+
 const blank = { title: '', description: '', dueDate: '' };
+
 export function TasksPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const query = useQuery({ queryKey: ['tasks'], queryFn: api.tasks });
   const qc = useQueryClient();
   const [form, setForm] = useState(blank);
@@ -36,8 +39,8 @@ export function TasksPage() {
       setSuccess(t('tasks.statusUpdated'));
     },
   });
-  function submit(e: FormEvent) {
-    e.preventDefault();
+  function submit(event: FormEvent) {
+    event.preventDefault();
     setSuccess('');
     save.mutate({
       title: form.title,
@@ -57,24 +60,24 @@ export function TasksPage() {
           <Field label={t('tasks.task')}>
             <Input
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              onChange={(event) => setForm({ ...form, title: event.target.value })}
               required
             />
           </Field>
           <Field label={t('tasks.description')}>
             <Input
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(event) => setForm({ ...form, description: event.target.value })}
             />
           </Field>
           <Field label={t('tasks.dueDate')}>
             <Input
               type="date"
               value={form.dueDate}
-              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+              onChange={(event) => setForm({ ...form, dueDate: event.target.value })}
             />
           </Field>
-          <div className="md:col-span-3 flex gap-2">
+          <div className="flex gap-2 md:col-span-3">
             <Button disabled={save.isPending}>
               {save.isPending ? t('common.saving') : t(editing ? 'tasks.save' : 'tasks.add')}
             </Button>
@@ -105,27 +108,27 @@ export function TasksPage() {
       )}
       {query.isLoading ? (
         <div className="mt-5">
-          <State>Loading tasks…</State>
+          <State>{t('tasks.loading')}</State>
         </div>
       ) : query.isError ? (
         <div className="mt-5">
           <State>
-            Could not load tasks.{' '}
+            {t('tasks.error')}{' '}
             <button className="underline" onClick={() => query.refetch()}>
-              Try again
+              {t('common.tryAgain')}
             </button>
           </State>
         </div>
       ) : query.data!.length === 0 ? (
         <div className="mt-5">
-          <State>No tasks yet. Add the next thing you need to do.</State>
+          <State>{t('tasks.empty')}</State>
         </div>
       ) : (
         <ul className="mt-5 divide-y divide-[var(--border)] rounded-xl bg-[var(--background)] shadow-sm ring-1 ring-[var(--border)]">
           {query.data!.map((task) => (
             <li key={task.id} className="flex gap-3 p-4">
               <input
-                aria-label={`Mark ${task.title} complete`}
+                aria-label={t('tasks.markComplete', { title: task.title })}
                 type="checkbox"
                 checked={task.completed}
                 disabled={toggle.isPending}
@@ -141,7 +144,9 @@ export function TasksPage() {
                 )}
                 {task.dueDate && (
                   <p className="mt-1 text-xs text-[var(--text-muted)]">
-                    Due {new Date(task.dueDate).toLocaleDateString()}
+                    {t('tasks.due', {
+                      date: new Date(task.dueDate).toLocaleDateString(getLocale(i18n.language)),
+                    })}
                   </p>
                 )}
               </div>

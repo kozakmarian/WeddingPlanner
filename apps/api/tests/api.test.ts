@@ -113,9 +113,10 @@ test('authentication, validation, wedding settings, CRUD, and tenant isolation',
   const budget = await request('/api/budget', {
     method: 'POST',
     headers: auth,
-    body: JSON.stringify({ name: 'Venue', category: 'Venue', estimatedCost: 500 }),
+    body: JSON.stringify({ name: 'Venue', category: 'Venue' }),
   });
   assert.equal(budget.response.status, 201);
+  assert.equal(budget.body.estimatedCost, 0);
   assert.equal(
     (
       await request(`/api/budget/${budget.body.id}`, {

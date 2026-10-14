@@ -10,7 +10,7 @@ import {
   Input,
   Notice,
   PageHeader,
-  Select,
+  Listbox,
   State,
 } from '../../components/ui';
 import { supportedLanguages } from '../../i18n';
@@ -112,19 +112,18 @@ export function WeddingSettingsPage() {
           </form>
         </Card>
         <Card>
-          <label className="block text-sm font-semibold text-[var(--text)]">
+          <div className="text-sm font-semibold text-[var(--text)]">
             <span>{t('settings.language')}</span>
-            <Select
+            <Listbox
               value={i18n.language}
-              onChange={(event) => i18n.changeLanguage(event.target.value)}
-            >
-              {supportedLanguages.map((language) => (
-                <option key={language} value={language}>
-                  {t(language === 'en' ? 'settings.english' : 'settings.slovak')}
-                </option>
-              ))}
-            </Select>
-          </label>
+              aria-label={t('settings.language')}
+              onChange={(language) => i18n.changeLanguage(language)}
+              options={supportedLanguages.map((language) => ({
+                value: language,
+                label: t(language === 'en' ? 'settings.english' : 'settings.slovak'),
+              }))}
+            />
+          </div>
         </Card>
       </div>
     </section>

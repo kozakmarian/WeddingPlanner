@@ -4,7 +4,7 @@ import type {
   ReactNode,
   SelectHTMLAttributes,
 } from 'react';
-import { IoCalendarOutline } from 'react-icons/io5';
+import { useEffect, useId, useRef, useState } from 'react';
 const join = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(' ');
 export function Button({
   className,
@@ -62,13 +62,7 @@ export const Input = ({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   />
 );
 export const DateInput = ({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) => (
-  <div className="relative mt-1.5">
-    <Input type="date" className={join('mt-0 pr-10', className)} {...props} />
-    <IoCalendarOutline
-      aria-hidden="true"
-      className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-lg text-[var(--primary)]"
-    />
-  </div>
+  <Input type="date" className={className} {...props} />
 );
 export const Select = ({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) => (
   <select
@@ -79,6 +73,113 @@ export const Select = ({ className, ...props }: SelectHTMLAttributes<HTMLSelectE
     {...props}
   />
 );
+export function Listbox({
+  value,
+  options,
+  onChange,
+  'aria-label': ariaLabel,
+}: {
+  value: string;
+  options: readonly { value: string; label: string }[];
+  onChange: (value: string) => void;
+  'aria-label': string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.max(
+      0,
+      options.findIndex((option) => option.value === value),
+    ),
+  );
+  const listboxId = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const selected = options.find((option) => option.value === value) ?? options[0];
+
+  useEffect(() => {
+    setActiveIndex(
+      Math.max(
+        0,
+        options.findIndex((option) => option.value === value),
+      ),
+    );
+  }, [options, value]);
+
+  function choose(index: number) {
+    const option = options[index];
+    if (!option) return;
+    onChange(option.value);
+    setOpen(false);
+  }
+
+  return (
+    <div
+      ref={root}
+      className="relative mt-1.5"
+      onBlur={(event) => {
+        if (!root.current?.contains(event.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listboxId}
+        className="flex min-h-11 w-full items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--background)] px-3.5 text-left text-[var(--text)] shadow-sm transition hover:border-[var(--primary-light)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--beige-dark)]"
+        onClick={() => setOpen((isOpen) => !isOpen)}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            setOpen(true);
+            setActiveIndex((index) =>
+              event.key === 'ArrowDown'
+                ? (index + 1) % options.length
+                : (index - 1 + options.length) % options.length,
+            );
+          }
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            open ? choose(activeIndex) : setOpen(true);
+          }
+          if (event.key === 'Escape') setOpen(false);
+        }}
+      >
+        <span>{selected.label}</span>
+        <span aria-hidden="true" className="text-[var(--primary)]">
+          ⌄
+        </span>
+      </button>
+      {open && (
+        <ul
+          id={listboxId}
+          role="listbox"
+          aria-label={ariaLabel}
+          className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)] p-1 shadow-[var(--shadow-md)]"
+        >
+          {options.map((option, index) => (
+            <li
+              key={option.value}
+              role="option"
+              aria-selected={option.value === value}
+              className={join(
+                'cursor-pointer rounded-lg px-3 py-2.5 text-sm text-[var(--text)] transition',
+                option.value === value
+                  ? 'bg-[var(--beige-dark)] font-semibold text-[var(--primary-dark)]'
+                  : 'hover:bg-[var(--beige-light)]',
+                activeIndex === index && 'ring-1 ring-[var(--primary-light)]',
+              )}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => choose(index)}
+              onMouseEnter={() => setActiveIndex(index)}
+            >
+              {option.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div

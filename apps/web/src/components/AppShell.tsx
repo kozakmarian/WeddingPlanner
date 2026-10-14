@@ -53,8 +53,8 @@ export function AppShell() {
     ));
 
   return (
-    <div className="min-h-screen bg-[var(--background-secondary)] md:flex">
-      <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background-dark)] p-6 text-white md:flex">
+    <div className="min-h-screen bg-[var(--background-secondary)] md:grid md:h-screen md:grid-cols-[18rem_minmax(0,1fr)] md:overflow-hidden">
+      <aside className="hidden h-screen w-72 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background-dark)] p-6 text-white md:flex">
         <div className="mb-12 flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-2xl bg-[var(--primary)] text-xl">
             ♥
@@ -76,7 +76,7 @@ export function AppShell() {
           </button>
         </div>
       </aside>
-      <main className="min-h-screen w-full pb-24 md:pb-8">
+      <main className="min-h-screen w-full pb-24 md:h-screen md:min-h-0 md:overflow-y-auto md:pb-8">
         <header className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--background)] px-5 py-4 md:justify-end md:bg-transparent md:px-8">
           <div className="flex items-center gap-2 md:hidden">
             <span className="grid size-9 place-items-center rounded-xl bg-[var(--primary)] text-lg text-white">

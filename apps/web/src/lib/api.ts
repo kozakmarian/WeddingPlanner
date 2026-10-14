@@ -28,6 +28,9 @@ export type BudgetItem = {
   estimatedCost: number;
   actualCost: number | null;
 };
+export type BudgetItemInput = Omit<BudgetItem, 'id' | 'estimatedCost'> & {
+  estimatedCost?: number;
+};
 export type Task = {
   id: string;
   title: string;
@@ -91,9 +94,9 @@ export const api = {
     request<Guest>(`/guests/${id}`, { method: 'PUT', body: JSON.stringify(input) }),
   deleteGuest: (id: string) => request<void>(`/guests/${id}`, { method: 'DELETE' }),
   budget: () => request<BudgetItem[]>('/budget'),
-  createBudget: (input: Omit<BudgetItem, 'id'>) =>
+  createBudget: (input: BudgetItemInput) =>
     request<BudgetItem>('/budget', { method: 'POST', body: JSON.stringify(input) }),
-  updateBudget: (id: string, input: Partial<Omit<BudgetItem, 'id'>>) =>
+  updateBudget: (id: string, input: Partial<BudgetItemInput>) =>
     request<BudgetItem>(`/budget/${id}`, { method: 'PUT', body: JSON.stringify(input) }),
   deleteBudget: (id: string) => request<void>(`/budget/${id}`, { method: 'DELETE' }),
   tasks: () => request<Task[]>('/tasks'),

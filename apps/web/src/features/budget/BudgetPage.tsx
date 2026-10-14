@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, type BudgetItem } from '../../lib/api';
+import { api, type BudgetItem, type BudgetItemInput } from '../../lib/api';
 import { Button, Card, Field, Input, Notice, PageHeader, Select } from '../../components/ui';
 import { RecordActions } from '../../components/actions/RecordActions';
 import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/AsyncState';
 import { getLocale } from '../../i18n';
-const blank = { name: '', category: '', estimatedCost: '0', actualCost: '' };
+import { calculateBudgetSummary } from './budget-summary';
+const blank = { name: '', category: '', actualCost: '' };
 const categories = [
   'Venue',
   'Catering',
@@ -21,15 +22,17 @@ const categories = [
 export function BudgetPage() {
   const { t, i18n } = useTranslation();
   const query = useQuery({ queryKey: ['budget'], queryFn: api.budget });
+  const wedding = useQuery({ queryKey: ['wedding'], queryFn: api.wedding });
   const qc = useQueryClient();
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [success, setSuccess] = useState('');
   const save = useMutation({
-    mutationFn: (input: Omit<BudgetItem, 'id'>) =>
+    mutationFn: (input: BudgetItemInput) =>
       editing ? api.updateBudget(editing.id, input) : api.createBudget(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['budget'] });
+      qc.invalidateQueries({ queryKey: ['wedding'] });
       setForm(blank);
       setEditing(null);
       setSuccess(t(editing ? 'budget.updated' : 'budget.added'));
@@ -47,32 +50,33 @@ export function BudgetPage() {
     style: 'currency',
     currency: 'EUR',
   });
+  const summary = calculateBudgetSummary(wedding.data?.budget ?? 0, items);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setSuccess('');
-    save.mutate({
+    const input: BudgetItemInput = {
       name: form.name,
       category: form.category,
-      estimatedCost: Number(form.estimatedCost),
       actualCost: form.actualCost === '' ? null : Number(form.actualCost),
-    });
+    };
+    // Set a safe value only for new records; edits must preserve old estimates.
+    if (!editing) input.estimatedCost = 0;
+    save.mutate(input);
   };
   return (
     <section>
       <PageHeader title={t('budget.title')}>
-        <div className="flex gap-6 text-sm">
+        <div className="flex flex-wrap gap-6 text-sm">
           <span>
-            <b>{money.format(items.reduce((x, item) => x + item.estimatedCost, 0))}</b>{' '}
-            {t('budget.estimated')}
+            <b>{money.format(wedding.data?.budget ?? 0)}</b> {t('budget.totalBudget')}
           </span>
-          <span>
-            <b>{money.format(items.reduce((x, item) => x + (item.actualCost ?? 0), 0))}</b>{' '}
-            {t('budget.actual')}
+          <span className={summary.remaining < 0 ? 'font-semibold text-[var(--error)]' : undefined}>
+            <b>{money.format(summary.remaining)}</b> {t('budget.remainingBudget')}
           </span>
         </div>
       </PageHeader>
       <Card>
-        <form onSubmit={submit} className="grid gap-3 md:grid-cols-4">
+        <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
           <Field label={t('budget.item')}>
             <Input
               value={form.name}
@@ -96,17 +100,7 @@ export function BudgetPage() {
               ))}
             </Select>
           </Field>
-          <Field label={t('budget.estimatedCost')}>
-            <Input
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.estimatedCost}
-              onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })}
-              required
-            />
-          </Field>
-          <Field label={t('budget.actualCost')}>
+          <Field label={t('budget.price')}>
             <Input
               type="number"
               min="0"
@@ -115,7 +109,7 @@ export function BudgetPage() {
               onChange={(e) => setForm({ ...form, actualCost: e.target.value })}
             />
           </Field>
-          <div className="flex gap-2 md:col-span-4">
+          <div className="flex gap-2 md:col-span-3">
             <Button disabled={save.isPending}>
               {save.isPending ? t('common.saving') : t(editing ? 'budget.save' : 'budget.add')}
             </Button>
@@ -133,7 +127,7 @@ export function BudgetPage() {
             )}
           </div>
           {save.isError && (
-            <p role="alert" className="text-sm text-red-700 md:col-span-4">
+            <p role="alert" className="text-sm text-red-700 md:col-span-3">
               {save.error.message}
             </p>
           )}
@@ -165,8 +159,7 @@ export function BudgetPage() {
               <tr>
                 <th className="p-3">{t('budget.item')}</th>
                 <th className="p-3">{t('budget.category')}</th>
-                <th className="p-3">{t('budget.estimatedCost')}</th>
-                <th className="p-3">{t('budget.actualCost')}</th>
+                <th className="p-3">{t('budget.price')}</th>
                 <th className="p-3" />
               </tr>
             </thead>
@@ -175,7 +168,6 @@ export function BudgetPage() {
                 <tr key={item.id} className="border-t border-stone-100">
                   <td className="p-3 font-medium">{item.name}</td>
                   <td className="p-3">{t(`budget.categories.${item.category}`, item.category)}</td>
-                  <td className="p-3">{money.format(item.estimatedCost)}</td>
                   <td className="p-3">
                     {item.actualCost == null
                       ? t('common.notAvailable')
@@ -188,7 +180,6 @@ export function BudgetPage() {
                         setForm({
                           name: item.name,
                           category: item.category,
-                          estimatedCost: String(item.estimatedCost),
                           actualCost: item.actualCost == null ? '' : String(item.actualCost),
                         });
                       }}

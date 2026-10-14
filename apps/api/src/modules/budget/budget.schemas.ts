@@ -3,7 +3,8 @@ export const idSchema = z.object({ id: z.string().cuid() });
 const fields = {
   name: z.string().trim().min(1),
   category: z.string().trim().min(1),
-  estimatedCost: z.coerce.number().nonnegative(),
+  // The legacy column is retained, but new UI flows no longer ask for an estimate.
+  estimatedCost: z.coerce.number().nonnegative().optional().default(0),
   actualCost: z.coerce.number().nonnegative().nullable().optional(),
 };
 export const createBudgetItemSchema = z.object(fields);
