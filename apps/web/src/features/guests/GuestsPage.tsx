@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { api, type Guest } from '../../lib/api';
 import {
   Badge,
@@ -20,6 +21,7 @@ const blank = {
 };
 const tone = { ATTENDING: 'success', PENDING: 'warning', DECLINED: 'error' } as const;
 export function GuestsPage() {
+  const { t } = useTranslation();
   const q = useQuery({ queryKey: ['guests'], queryFn: api.guests });
   const qc = useQueryClient();
   const [f, setF] = useState(blank);
@@ -31,14 +33,14 @@ export function GuestsPage() {
       qc.invalidateQueries({ queryKey: ['guests'] });
       setF(blank);
       setEdit(null);
-      setSuccess('Guest saved.');
+      setSuccess(t('guests.saved'));
     },
   });
   const del = useMutation({
     mutationFn: api.deleteGuest,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['guests'] });
-      setSuccess('Guest deleted.');
+      setSuccess(t('guests.deleted'));
     },
   });
   function submit(e: FormEvent) {
@@ -71,22 +73,24 @@ export function GuestsPage() {
     );
   return (
     <section>
-      <PageHeader eyebrow="Your people" title="Guests">
-        <p className="text-sm text-[var(--text-muted)]">{q.data!.length} invited</p>
+      <PageHeader eyebrow={t('guests.eyebrow')} title={t('guests.title')}>
+        <p className="text-sm text-[var(--text-muted)]">
+          {t('guests.invited', { count: q.data!.length })}
+        </p>
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-4 md:grid-cols-4">
-          <Field label="Name">
+          <Field label={t('guests.name')}>
             <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
           </Field>
-          <Field label="Email">
+          <Field label={t('guests.email')}>
             <Input
               type="email"
               value={f.email}
               onChange={(e) => setF({ ...f, email: e.target.value })}
             />
           </Field>
-          <Field label="Attendance">
+          <Field label={t('guests.attendance')}>
             <Select
               value={f.attendance}
               onChange={(e) => setF({ ...f, attendance: e.target.value as Guest['attendance'] })}
@@ -96,7 +100,7 @@ export function GuestsPage() {
               <option value="DECLINED">Declined</option>
             </Select>
           </Field>
-          <Field label="Plus ones">
+          <Field label={t('guests.plusOnes')}>
             <Input
               type="number"
               min="0"
@@ -105,7 +109,7 @@ export function GuestsPage() {
             />
           </Field>
           <div className="flex gap-2 md:col-span-4">
-            <Button disabled={save.isPending}>{edit ? 'Save guest' : 'Add guest'}</Button>
+            <Button disabled={save.isPending}>{t(edit ? 'guests.save' : 'guests.add')}</Button>
             {edit && (
               <Button
                 type="button"
@@ -115,7 +119,7 @@ export function GuestsPage() {
                   setF(blank);
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             )}
           </div>
@@ -140,7 +144,7 @@ export function GuestsPage() {
               </div>
               <Badge tone={tone[g.attendance]}>{g.attendance.toLowerCase()}</Badge>
               <button className="font-bold text-[var(--primary-dark)]" onClick={() => start(g)}>
-                Edit
+                {t('common.edit')}
               </button>
               <button
                 className="font-bold text-[var(--error)]"
@@ -149,7 +153,7 @@ export function GuestsPage() {
                   if (confirm(`Delete ${g.name}?`)) del.mutate(g.id);
                 }}
               >
-                Delete
+                {t('common.delete')}
               </button>
             </Card>
           ))

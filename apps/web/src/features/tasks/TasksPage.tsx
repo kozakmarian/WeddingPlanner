@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { api, type Task } from '../../lib/api';
 import { Button, Field, Input, Notice, State } from '../../components/ui';
 const blank = { title: '', description: '', dueDate: '' };
 export function TasksPage() {
+  const { t, i18n } = useTranslation();
   const query = useQuery({ queryKey: ['tasks'], queryFn: api.tasks });
   const qc = useQueryClient();
   const [form, setForm] = useState(blank);
@@ -16,21 +18,21 @@ export function TasksPage() {
       qc.invalidateQueries({ queryKey: ['tasks'] });
       setForm(blank);
       setEditing(null);
-      setSuccess(editing ? 'Task updated.' : 'Task added.');
+      setSuccess(t(editing ? 'tasks.updated' : 'tasks.added'));
     },
   });
   const remove = useMutation({
     mutationFn: api.deleteTask,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tasks'] });
-      setSuccess('Task deleted.');
+      setSuccess(t('tasks.deleted'));
     },
   });
   const toggle = useMutation({
     mutationFn: (task: Task) => api.updateTask(task.id, { completed: !task.completed }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tasks'] });
-      setSuccess('Task status updated.');
+      setSuccess(t('tasks.statusUpdated'));
     },
   });
   function submit(e: FormEvent) {
@@ -46,31 +48,31 @@ export function TasksPage() {
     <section>
       <div className="flex items-baseline justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Tasks</h2>
-          <p className="mt-1 text-stone-600">Plan every detail in one place.</p>
+          <h2 className="text-2xl font-bold text-[var(--text)]">{t('tasks.title')}</h2>
+          <p className="mt-1 text-[var(--text-muted)]">{t('tasks.subtitle')}</p>
         </div>
-        <p className="text-sm text-stone-600">
-          {query.data?.filter((t) => !t.completed).length ?? 0} pending
+        <p className="text-sm text-[var(--text-muted)]">
+          {t('tasks.pending', { count: query.data?.filter((task) => !task.completed).length ?? 0 })}
         </p>
       </div>
       <form
         onSubmit={submit}
-        className="mt-6 grid gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200 md:grid-cols-3"
+        className="mt-6 grid gap-3 rounded-xl bg-[var(--background)] p-5 shadow-sm ring-1 ring-[var(--border)] md:grid-cols-3"
       >
-        <Field label="Task">
+        <Field label={t('tasks.task')}>
           <Input
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             required
           />
         </Field>
-        <Field label="Description">
+        <Field label={t('tasks.description')}>
           <Input
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
         </Field>
-        <Field label="Due date">
+        <Field label={t('tasks.dueDate')}>
           <Input
             type="date"
             value={form.dueDate}
@@ -90,12 +92,12 @@ export function TasksPage() {
                 setForm(blank);
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           )}
         </div>
         {save.isError && (
-          <p role="alert" className="text-sm text-red-700 md:col-span-3">
+          <p role="alert" className="text-sm text-[var(--error)] md:col-span-3">
             {save.error.message}
           </p>
         )}
@@ -123,7 +125,7 @@ export function TasksPage() {
           <State>No tasks yet. Add the next thing you need to do.</State>
         </div>
       ) : (
-        <ul className="mt-5 divide-y divide-stone-100 rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
+        <ul className="mt-5 divide-y divide-[var(--border)] rounded-xl bg-[var(--background)] shadow-sm ring-1 ring-[var(--border)]">
           {query.data!.map((task) => (
             <li key={task.id} className="flex gap-3 p-4">
               <input
@@ -139,10 +141,10 @@ export function TasksPage() {
                   {task.title}
                 </p>
                 {task.description && (
-                  <p className="mt-1 text-sm text-stone-600">{task.description}</p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)]">{task.description}</p>
                 )}
                 {task.dueDate && (
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
                     Due {new Date(task.dueDate).toLocaleDateString()}
                   </p>
                 )}
