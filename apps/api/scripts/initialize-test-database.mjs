@@ -12,10 +12,10 @@ for (const command of [
   'npx tsx prisma/seed.ts',
 ]) {
   const result = spawnSync(command, {
-  cwd: apiRoot,
-  env: environment,
-  shell: true,
-  stdio: 'inherit',
+    cwd: apiRoot,
+    env: environment,
+    shell: true,
+    stdio: 'inherit',
   });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }

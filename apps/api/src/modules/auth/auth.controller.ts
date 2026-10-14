@@ -11,4 +11,6 @@ export async function login(req: Request, res: Response) {
   const input = loginSchema.parse(req.body);
   res.json(await service.login(input.email, input.password));
 }
-export async function me(req: AuthenticatedRequest, res: Response) { res.json({ user: await service.getMe(req.auth!.userId) }); }
+export async function me(req: AuthenticatedRequest, res: Response) {
+  res.json({ user: await service.getMe(req.auth!.userId) });
+}

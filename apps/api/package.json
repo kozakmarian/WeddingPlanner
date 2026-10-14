@@ -14,7 +14,9 @@
     "db:seed": "node scripts/run-prisma.mjs db seed",
     "db:init": "node scripts/initialize-database.mjs"
   },
-  "prisma": { "seed": "tsx prisma/seed.ts" },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "6.8.1",
     "bcrypt": "^5.1.1",

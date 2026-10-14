@@ -20,32 +20,32 @@ The seed creates `demo@weddingplanner.test` with password `password123` plus a c
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Run API and frontend concurrently in watch mode (both logs remain visible) |
-| `npm run build` | Build both applications |
-| `npm run typecheck` | Type-check both applications |
-| `npm run db:init` | Safely initialize a new SQLite database from the committed migration and seed it |
-| `npm run db:migrate` | Apply committed Prisma migrations |
-| `npm run db:migrate:dev` | Create a new migration during development |
-| `npm test --workspace=@wedding-planner/api` | Initialize an isolated database in `C:/tmp` and run API integration tests |
+| Command                                     | Purpose                                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------------------- |
+| `npm run dev`                               | Run API and frontend concurrently in watch mode (both logs remain visible)       |
+| `npm run build`                             | Build both applications                                                          |
+| `npm run typecheck`                         | Type-check both applications                                                     |
+| `npm run db:init`                           | Safely initialize a new SQLite database from the committed migration and seed it |
+| `npm run db:migrate`                        | Apply committed Prisma migrations                                                |
+| `npm run db:migrate:dev`                    | Create a new migration during development                                        |
+| `npm test --workspace=@wedding-planner/api` | Initialize an isolated database in `C:/tmp` and run API integration tests        |
 
 ## API
 
 All non-auth endpoints require `Authorization: Bearer <token>`. Registration creates the user's only wedding automatically. Bodies and URL ids are validated; errors use `{ "error": { "code", "message" } }` (validation errors also include `details`).
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| POST | `/api/auth/register` | Create an account, wedding, and JWT |
-| POST | `/api/auth/login` | Obtain a JWT |
-| GET | `/api/auth/me` | Get the authenticated user |
-| GET, PUT | `/api/wedding` | Read or update the caller's wedding settings |
-| GET, POST | `/api/guests` | List or create guests |
-| GET, PUT, DELETE | `/api/guests/:id` | Manage one guest |
-| GET, POST | `/api/budget` | List or create budget items |
-| GET, PUT, DELETE | `/api/budget/:id` | Manage one budget item |
-| GET, POST | `/api/tasks` | List or create tasks |
-| GET, PUT, DELETE | `/api/tasks/:id` | Manage one task |
+| Method           | Endpoint             | Description                                  |
+| ---------------- | -------------------- | -------------------------------------------- |
+| POST             | `/api/auth/register` | Create an account, wedding, and JWT          |
+| POST             | `/api/auth/login`    | Obtain a JWT                                 |
+| GET              | `/api/auth/me`       | Get the authenticated user                   |
+| GET, PUT         | `/api/wedding`       | Read or update the caller's wedding settings |
+| GET, POST        | `/api/guests`        | List or create guests                        |
+| GET, PUT, DELETE | `/api/guests/:id`    | Manage one guest                             |
+| GET, POST        | `/api/budget`        | List or create budget items                  |
+| GET, PUT, DELETE | `/api/budget/:id`    | Manage one budget item                       |
+| GET, POST        | `/api/tasks`         | List or create tasks                         |
+| GET, PUT, DELETE | `/api/tasks/:id`     | Manage one task                              |
 
 `/api/budget-items` remains available as a compatibility alias. Set `JWT_SECRET` to a long random value and optionally set `FRONTEND_ORIGIN` (defaults to `http://localhost:5173`) for CORS.
 

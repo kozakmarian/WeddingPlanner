@@ -8,7 +8,9 @@ async function ownedWedding(userId: string) {
   if (!wedding) throw new AppError(404, 'Wedding not found.', 'NOT_FOUND');
   return wedding;
 }
-export async function getWedding(userId: string) { return ownedWedding(userId); }
+export async function getWedding(userId: string) {
+  return ownedWedding(userId);
+}
 export async function updateWedding(userId: string, data: UpdateWedding) {
   const wedding = await ownedWedding(userId);
   return prisma.wedding.update({ where: { id: wedding.id }, data });

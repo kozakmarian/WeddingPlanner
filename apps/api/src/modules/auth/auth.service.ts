@@ -12,7 +12,14 @@ export async function register(email: string, password: string) {
   try {
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({ data: { email, passwordHash }, select: publicUser });
-      await tx.wedding.create({ data: { userId: created.id, name: 'My Wedding', date: new Date(), location: 'To be decided' } });
+      await tx.wedding.create({
+        data: {
+          userId: created.id,
+          name: 'My Wedding',
+          date: new Date(),
+          location: 'To be decided',
+        },
+      });
       return created;
     });
     return { user, token: signToken(user.id) };
@@ -25,7 +32,10 @@ export async function register(email: string, password: string) {
 }
 
 export async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email }, select: { ...publicUser, passwordHash: true } });
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { ...publicUser, passwordHash: true },
+  });
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     throw new AppError(401, 'Email or password is incorrect.', 'INVALID_CREDENTIALS');
   }

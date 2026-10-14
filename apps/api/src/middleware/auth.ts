@@ -2,7 +2,9 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../lib/errors.js';
 
-export interface AuthenticatedRequest extends Request { auth?: { userId: string }; }
+export interface AuthenticatedRequest extends Request {
+  auth?: { userId: string };
+}
 
 function jwtSecret() {
   const secret = process.env.JWT_SECRET;
@@ -19,10 +21,13 @@ export function requireAuth(req: AuthenticatedRequest, _res: Response, next: Nex
   if (!token) return next(new AppError(401, 'Authentication is required.', 'UNAUTHENTICATED'));
   try {
     const payload = jwt.verify(token, jwtSecret());
-    if (typeof payload === 'string' || typeof payload.sub !== 'string') throw new Error('Missing subject');
+    if (typeof payload === 'string' || typeof payload.sub !== 'string')
+      throw new Error('Missing subject');
     req.auth = { userId: payload.sub };
     return next();
   } catch {
-    return next(new AppError(401, 'Authentication token is invalid or expired.', 'UNAUTHENTICATED'));
+    return next(
+      new AppError(401, 'Authentication token is invalid or expired.', 'UNAUTHENTICATED'),
+    );
   }
 }

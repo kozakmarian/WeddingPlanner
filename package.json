@@ -12,12 +12,15 @@
     "db:migrate": "npm run db:migrate --workspace=@wedding-planner/api",
     "db:migrate:dev": "npm run db:migrate:dev --workspace=@wedding-planner/api",
     "db:seed": "npm run db:seed --workspace=@wedding-planner/api",
-    "db:init": "npm run db:init --workspace=@wedding-planner/api"
+    "db:init": "npm run db:init --workspace=@wedding-planner/api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
-    "concurrently": "^9.2.5"
+    "concurrently": "^9.2.5",
+    "prettier": "^3.9.10"
   }
 }

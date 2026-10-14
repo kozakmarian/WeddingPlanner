@@ -26,22 +26,42 @@ test.before(async () => {
   assert.ok(address && typeof address !== 'string');
   baseUrl = `http://127.0.0.1:${address.port}`;
 });
-test.after(() => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
+test.after(
+  () =>
+    new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    ),
+);
 
 test('authentication, validation, wedding settings, CRUD, and tenant isolation', async () => {
   const unauthenticated = await request('/api/wedding');
   assert.equal(unauthenticated.response.status, 401);
-  const invalid = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ email: 'bad', password: 'short' }) });
+  const invalid = await request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'bad', password: 'short' }),
+  });
   assert.equal(invalid.response.status, 400);
 
-  const first = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ email: 'one@example.test', password: 'password123' }) });
+  const first = await request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'one@example.test', password: 'password123' }),
+  });
   assert.equal(first.response.status, 201);
   assert.equal(first.body.user.passwordHash, undefined);
-  const duplicate = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ email: 'one@example.test', password: 'password123' }) });
+  const duplicate = await request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'one@example.test', password: 'password123' }),
+  });
   assert.equal(duplicate.response.status, 409);
-  const failedLogin = await request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'one@example.test', password: 'wrong-password' }) });
+  const failedLogin = await request('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'one@example.test', password: 'wrong-password' }),
+  });
   assert.equal(failedLogin.response.status, 401);
-  const login = await request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'one@example.test', password: 'password123' }) });
+  const login = await request('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'one@example.test', password: 'password123' }),
+  });
   assert.equal(login.response.status, 200);
   const token = login.body.token as string;
   const auth = { authorization: `Bearer ${token}` };
@@ -51,30 +71,104 @@ test('authentication, validation, wedding settings, CRUD, and tenant isolation',
 
   const wedding = await request('/api/wedding', { headers: auth });
   assert.equal(wedding.response.status, 200);
-  const weddingUpdate = await request('/api/wedding', { method: 'PUT', headers: auth, body: JSON.stringify({ name: 'A & B', date: '2028-01-02', location: 'Bratislava', budget: 1000 }) });
+  const weddingUpdate = await request('/api/wedding', {
+    method: 'PUT',
+    headers: auth,
+    body: JSON.stringify({
+      name: 'A & B',
+      date: '2028-01-02',
+      location: 'Bratislava',
+      budget: 1000,
+    }),
+  });
   assert.equal(weddingUpdate.response.status, 200);
   assert.equal(weddingUpdate.body.name, 'A & B');
 
-  const guest = await request('/api/guests', { method: 'POST', headers: auth, body: JSON.stringify({ name: 'Guest', attendance: 'ATTENDING' }) });
+  const guest = await request('/api/guests', {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({ name: 'Guest', attendance: 'ATTENDING' }),
+  });
   assert.equal(guest.response.status, 201);
   assert.equal((await request('/api/guests', { headers: auth })).body.length, 1);
-  assert.equal((await request(`/api/guests/${guest.body.id}`, { method: 'PUT', headers: auth, body: JSON.stringify({ accompanyingGuests: 2 }) })).body.accompanyingGuests, 2);
+  assert.equal(
+    (
+      await request(`/api/guests/${guest.body.id}`, {
+        method: 'PUT',
+        headers: auth,
+        body: JSON.stringify({ accompanyingGuests: 2 }),
+      })
+    ).body.accompanyingGuests,
+    2,
+  );
 
-  const budget = await request('/api/budget', { method: 'POST', headers: auth, body: JSON.stringify({ name: 'Venue', category: 'Venue', estimatedCost: 500 }) });
+  const budget = await request('/api/budget', {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({ name: 'Venue', category: 'Venue', estimatedCost: 500 }),
+  });
   assert.equal(budget.response.status, 201);
-  assert.equal((await request(`/api/budget/${budget.body.id}`, { method: 'PUT', headers: auth, body: JSON.stringify({ actualCost: 450 }) })).body.actualCost, 450);
+  assert.equal(
+    (
+      await request(`/api/budget/${budget.body.id}`, {
+        method: 'PUT',
+        headers: auth,
+        body: JSON.stringify({ actualCost: 450 }),
+      })
+    ).body.actualCost,
+    450,
+  );
 
-  const task = await request('/api/tasks', { method: 'POST', headers: auth, body: JSON.stringify({ title: 'Book venue' }) });
+  const task = await request('/api/tasks', {
+    method: 'POST',
+    headers: auth,
+    body: JSON.stringify({ title: 'Book venue' }),
+  });
   assert.equal(task.response.status, 201);
-  assert.equal((await request(`/api/tasks/${task.body.id}`, { method: 'PUT', headers: auth, body: JSON.stringify({ completed: true }) })).body.completed, true);
+  assert.equal(
+    (
+      await request(`/api/tasks/${task.body.id}`, {
+        method: 'PUT',
+        headers: auth,
+        body: JSON.stringify({ completed: true }),
+      })
+    ).body.completed,
+    true,
+  );
 
-  const second = await request('/api/auth/register', { method: 'POST', body: JSON.stringify({ email: 'two@example.test', password: 'password123' }) });
+  const second = await request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email: 'two@example.test', password: 'password123' }),
+  });
   const secondAuth = { authorization: `Bearer ${second.body.token as string}` };
-  assert.equal((await request(`/api/guests/${guest.body.id}`, { headers: secondAuth })).response.status, 404);
-  assert.equal((await request(`/api/budget/${budget.body.id}`, { method: 'DELETE', headers: secondAuth })).response.status, 404);
-  assert.equal((await request(`/api/tasks/${task.body.id}`, { method: 'DELETE', headers: secondAuth })).response.status, 404);
+  assert.equal(
+    (await request(`/api/guests/${guest.body.id}`, { headers: secondAuth })).response.status,
+    404,
+  );
+  assert.equal(
+    (await request(`/api/budget/${budget.body.id}`, { method: 'DELETE', headers: secondAuth }))
+      .response.status,
+    404,
+  );
+  assert.equal(
+    (await request(`/api/tasks/${task.body.id}`, { method: 'DELETE', headers: secondAuth }))
+      .response.status,
+    404,
+  );
 
-  assert.equal((await request(`/api/guests/${guest.body.id}`, { method: 'DELETE', headers: auth })).response.status, 204);
-  assert.equal((await request(`/api/budget/${budget.body.id}`, { method: 'DELETE', headers: auth })).response.status, 204);
-  assert.equal((await request(`/api/tasks/${task.body.id}`, { method: 'DELETE', headers: auth })).response.status, 204);
+  assert.equal(
+    (await request(`/api/guests/${guest.body.id}`, { method: 'DELETE', headers: auth })).response
+      .status,
+    204,
+  );
+  assert.equal(
+    (await request(`/api/budget/${budget.body.id}`, { method: 'DELETE', headers: auth })).response
+      .status,
+    204,
+  );
+  assert.equal(
+    (await request(`/api/tasks/${task.body.id}`, { method: 'DELETE', headers: auth })).response
+      .status,
+    204,
+  );
 });

@@ -9,7 +9,13 @@ import taskRoutes from './modules/tasks/tasks.routes.js';
 
 export const app = express();
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
-app.use(cors({ origin: frontendOrigin })); app.use(express.json());
+app.use(cors({ origin: frontendOrigin }));
+app.use(express.json());
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
-app.use('/api/auth', authRoutes); app.use('/api/wedding', weddingRoutes); app.use('/api/guests', guestRoutes); app.use('/api/budget', budgetRoutes); app.use('/api/budget-items', budgetRoutes); app.use('/api/tasks', taskRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/wedding', weddingRoutes);
+app.use('/api/guests', guestRoutes);
+app.use('/api/budget', budgetRoutes);
+app.use('/api/budget-items', budgetRoutes);
+app.use('/api/tasks', taskRoutes);
 app.use(errorHandler);
