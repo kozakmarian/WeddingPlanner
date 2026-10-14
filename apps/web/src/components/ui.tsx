@@ -1,0 +1,6 @@
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+export const Button = ({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) => <button className={`rounded-lg bg-rose-800 px-4 py-2 font-medium text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />;
+export function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) { return <label className="block text-sm font-medium text-stone-700"><span>{label}</span>{children}{error && <span className="mt-1 block text-xs text-red-700">{error}</span>}</label>; }
+export const Input = ({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) => <input className={`mt-1 block w-full rounded-lg border border-stone-300 bg-white px-3 py-2 shadow-sm outline-none focus:border-rose-700 focus:ring-2 focus:ring-rose-100 ${className}`} {...props} />;
+export function State({ children }: { children: ReactNode }) { return <div className="rounded-xl border border-stone-200 bg-white p-6 text-stone-600">{children}</div>; }
+export function Notice({ children }: { children: ReactNode }) { return <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{children}</p>; }
