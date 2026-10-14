@@ -123,8 +123,15 @@ export function Badge({
     </span>
   );
 }
-export function State({ children }: { children: ReactNode }) {
-  return <Card className="text-[var(--text-muted)]">{children}</Card>;
+export function State({
+  children,
+  ...props
+}: { children: ReactNode } & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <Card className="text-[var(--text-muted)]" {...props}>
+      {children}
+    </Card>
+  );
 }
 export function Notice({ children }: { children: ReactNode }) {
   return (

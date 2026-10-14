@@ -1,28 +1,35 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, authToken, type User } from '../../lib/api';
+import { clearSession, establishSession } from './session';
 
-type AuthValue = { user: User | null; loading: boolean; logout: () => void };
+type AuthValue = {
+  user: User | null;
+  loading: boolean;
+  logout: () => void;
+  login: (user: User) => void;
+};
 const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
+  const [authenticated, setAuthenticated] = useState(() => Boolean(authToken.get()));
   const query = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: api.me,
-    enabled: Boolean(authToken.get()),
+    enabled: authenticated,
     retry: false,
   });
-  const logout = () => {
-    authToken.clear();
-    queryClient.removeQueries();
-  };
+  const logout = () => clearSession(queryClient, setAuthenticated);
+  const login = (user: User) => establishSession(queryClient, setAuthenticated, user);
+
   return (
     <AuthContext.Provider
       value={{
-        user: query.data?.user ?? null,
-        loading: Boolean(authToken.get()) && query.isLoading,
+        user: authenticated ? (query.data?.user ?? null) : null,
+        loading: authenticated && query.isLoading,
         logout,
+        login,
       }}
     >
       {children}

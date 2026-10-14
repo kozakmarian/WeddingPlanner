@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, authToken, type User } from '../../lib/api';
 import { Button, Card, Field, Input } from '../../components/ui';
+import { useAuth } from './AuthProvider';
 
 function AuthForm({ register }: { register?: boolean }) {
   const { t } = useTranslation();
@@ -12,12 +13,12 @@ function AuthForm({ register }: { register?: boolean }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const client = useQueryClient();
+  const { login } = useAuth();
   const mutation = useMutation({
     mutationFn: register ? api.register : api.login,
     onSuccess: ({ user, token }: { user: User; token: string }) => {
       authToken.set(token);
-      client.setQueryData(['auth', 'me'], { user });
+      login(user);
       navigate((location.state as { from?: string } | null)?.from ?? '/');
     },
     onError: (e: Error) => setError(e.message),

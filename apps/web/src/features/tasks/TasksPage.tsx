@@ -2,10 +2,11 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, type Task } from '../../lib/api';
-import { Button, Field, Input, Notice, State } from '../../components/ui';
+import { Button, Card, Field, Input, Notice, PageHeader, State } from '../../components/ui';
+import { RecordActions } from '../../components/actions/RecordActions';
 const blank = { title: '', description: '', dueDate: '' };
 export function TasksPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const query = useQuery({ queryKey: ['tasks'], queryFn: api.tasks });
   const qc = useQueryClient();
   const [form, setForm] = useState(blank);
@@ -46,62 +47,58 @@ export function TasksPage() {
   }
   return (
     <section>
-      <div className="flex items-baseline justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-[var(--text)]">{t('tasks.title')}</h2>
-          <p className="mt-1 text-[var(--text-muted)]">{t('tasks.subtitle')}</p>
-        </div>
+      <PageHeader title={t('tasks.title')}>
         <p className="text-sm text-[var(--text-muted)]">
           {t('tasks.pending', { count: query.data?.filter((task) => !task.completed).length ?? 0 })}
         </p>
-      </div>
-      <form
-        onSubmit={submit}
-        className="mt-6 grid gap-3 rounded-xl bg-[var(--background)] p-5 shadow-sm ring-1 ring-[var(--border)] md:grid-cols-3"
-      >
-        <Field label={t('tasks.task')}>
-          <Input
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            required
-          />
-        </Field>
-        <Field label={t('tasks.description')}>
-          <Input
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-          />
-        </Field>
-        <Field label={t('tasks.dueDate')}>
-          <Input
-            type="date"
-            value={form.dueDate}
-            onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-          />
-        </Field>
-        <div className="md:col-span-3 flex gap-2">
-          <Button disabled={save.isPending}>
-            {save.isPending ? 'Saving…' : editing ? 'Save task' : 'Add task'}
-          </Button>
-          {editing && (
-            <Button
-              type="button"
-              className="bg-stone-600 hover:bg-stone-500"
-              onClick={() => {
-                setEditing(null);
-                setForm(blank);
-              }}
-            >
-              {t('common.cancel')}
+      </PageHeader>
+      <p className="-mt-5 mb-6 text-[var(--text-muted)]">{t('tasks.subtitle')}</p>
+      <Card>
+        <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
+          <Field label={t('tasks.task')}>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              required
+            />
+          </Field>
+          <Field label={t('tasks.description')}>
+            <Input
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </Field>
+          <Field label={t('tasks.dueDate')}>
+            <Input
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+            />
+          </Field>
+          <div className="md:col-span-3 flex gap-2">
+            <Button disabled={save.isPending}>
+              {save.isPending ? t('common.saving') : t(editing ? 'tasks.save' : 'tasks.add')}
             </Button>
+            {editing && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setEditing(null);
+                  setForm(blank);
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+            )}
+          </div>
+          {save.isError && (
+            <p role="alert" className="text-sm text-[var(--error)] md:col-span-3">
+              {save.error.message}
+            </p>
           )}
-        </div>
-        {save.isError && (
-          <p role="alert" className="text-sm text-[var(--error)] md:col-span-3">
-            {save.error.message}
-          </p>
-        )}
-      </form>
+        </form>
+      </Card>
       {success && (
         <div className="mt-4">
           <Notice>{success}</Notice>
@@ -149,29 +146,21 @@ export function TasksPage() {
                   </p>
                 )}
               </div>
-              <div className="shrink-0">
-                <button
-                  className="mr-3 text-sm text-rose-800 underline"
-                  onClick={() => {
-                    setEditing(task);
-                    setForm({
-                      title: task.title,
-                      description: task.description ?? '',
-                      dueDate: task.dueDate?.slice(0, 10) ?? '',
-                    });
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="text-sm text-red-700 underline"
-                  onClick={() => {
-                    if (confirm(`Delete ${task.title}?`)) remove.mutate(task.id);
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
+              <RecordActions
+                onEdit={() => {
+                  setEditing(task);
+                  setForm({
+                    title: task.title,
+                    description: task.description ?? '',
+                    dueDate: task.dueDate?.slice(0, 10) ?? '',
+                  });
+                }}
+                onDelete={() => {
+                  if (confirm(t('tasks.deleteConfirm', { name: task.title })))
+                    remove.mutate(task.id);
+                }}
+                deleteDisabled={remove.isPending}
+              />
             </li>
           ))}
         </ul>

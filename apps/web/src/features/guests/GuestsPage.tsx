@@ -13,6 +13,7 @@ import {
   Select,
   State,
 } from '../../components/ui';
+import { RecordActions } from '../../components/actions/RecordActions';
 const blank = {
   name: '',
   email: '',
@@ -143,18 +144,13 @@ export function GuestsPage() {
                 </p>
               </div>
               <Badge tone={tone[g.attendance]}>{g.attendance.toLowerCase()}</Badge>
-              <button className="font-bold text-[var(--primary-dark)]" onClick={() => start(g)}>
-                {t('common.edit')}
-              </button>
-              <button
-                className="font-bold text-[var(--error)]"
-                disabled={del.isPending}
-                onClick={() => {
-                  if (confirm(`Delete ${g.name}?`)) del.mutate(g.id);
+              <RecordActions
+                onEdit={() => start(g)}
+                onDelete={() => {
+                  if (confirm(t('guests.deleteConfirm', { name: g.name }))) del.mutate(g.id);
                 }}
-              >
-                {t('common.delete')}
-              </button>
+                deleteDisabled={del.isPending}
+              />
             </Card>
           ))
         )}

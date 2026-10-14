@@ -2,7 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, type BudgetItem } from '../../lib/api';
-import { Button, Field, Input, Notice, State } from '../../components/ui';
+import { Button, Card, Field, Input, Notice, PageHeader } from '../../components/ui';
+import { RecordActions } from '../../components/actions/RecordActions';
+import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/AsyncState';
 import { getLocale } from '../../i18n';
 const blank = { name: '', category: '', estimatedCost: '0', actualCost: '' };
 export function BudgetPage() {
@@ -46,77 +48,77 @@ export function BudgetPage() {
   };
   return (
     <section>
-      <h2 className="text-2xl font-bold">{t('budget.title')}</h2>
-      <div className="mt-3 flex gap-6 text-sm">
-        <span>
-          <b>{money.format(items.reduce((x, item) => x + item.estimatedCost, 0))}</b>{' '}
-          {t('budget.estimated')}
-        </span>
-        <span>
-          <b>{money.format(items.reduce((x, item) => x + (item.actualCost ?? 0), 0))}</b>{' '}
-          {t('budget.actual')}
-        </span>
-      </div>
-      <form
-        onSubmit={submit}
-        className="mt-6 grid gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200 md:grid-cols-4"
-      >
-        <Field label={t('budget.item')}>
-          <Input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            required
-          />
-        </Field>
-        <Field label={t('budget.category')}>
-          <Input
-            value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-            required
-          />
-        </Field>
-        <Field label={t('budget.estimatedCost')}>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.estimatedCost}
-            onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })}
-            required
-          />
-        </Field>
-        <Field label={t('budget.actualCost')}>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.actualCost}
-            onChange={(e) => setForm({ ...form, actualCost: e.target.value })}
-          />
-        </Field>
-        <div className="flex gap-2 md:col-span-4">
-          <Button disabled={save.isPending}>
-            {save.isPending ? t('common.saving') : t(editing ? 'budget.save' : 'budget.add')}
-          </Button>
-          {editing && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setEditing(null);
-                setForm(blank);
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
-          )}
+      <PageHeader title={t('budget.title')}>
+        <div className="flex gap-6 text-sm">
+          <span>
+            <b>{money.format(items.reduce((x, item) => x + item.estimatedCost, 0))}</b>{' '}
+            {t('budget.estimated')}
+          </span>
+          <span>
+            <b>{money.format(items.reduce((x, item) => x + (item.actualCost ?? 0), 0))}</b>{' '}
+            {t('budget.actual')}
+          </span>
         </div>
-        {save.isError && (
-          <p role="alert" className="text-sm text-red-700 md:col-span-4">
-            {save.error.message}
-          </p>
-        )}
-      </form>
+      </PageHeader>
+      <Card>
+        <form onSubmit={submit} className="grid gap-3 md:grid-cols-4">
+          <Field label={t('budget.item')}>
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </Field>
+          <Field label={t('budget.category')}>
+            <Input
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              required
+            />
+          </Field>
+          <Field label={t('budget.estimatedCost')}>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.estimatedCost}
+              onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })}
+              required
+            />
+          </Field>
+          <Field label={t('budget.actualCost')}>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.actualCost}
+              onChange={(e) => setForm({ ...form, actualCost: e.target.value })}
+            />
+          </Field>
+          <div className="flex gap-2 md:col-span-4">
+            <Button disabled={save.isPending}>
+              {save.isPending ? t('common.saving') : t(editing ? 'budget.save' : 'budget.add')}
+            </Button>
+            {editing && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setEditing(null);
+                  setForm(blank);
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+            )}
+          </div>
+          {save.isError && (
+            <p role="alert" className="text-sm text-red-700 md:col-span-4">
+              {save.error.message}
+            </p>
+          )}
+        </form>
+      </Card>
       {success && (
         <div className="mt-4">
           <Notice>{success}</Notice>
@@ -124,20 +126,17 @@ export function BudgetPage() {
       )}
       {query.isLoading ? (
         <div className="mt-5">
-          <State>{t('budget.loading')}</State>
+          <LoadingState>{t('budget.loading')}</LoadingState>
         </div>
       ) : query.isError ? (
         <div className="mt-5">
-          <State>
-            {t('budget.error')}{' '}
-            <button className="underline" onClick={() => query.refetch()}>
-              {t('common.tryAgain')}
-            </button>
-          </State>
+          <ErrorState onRetry={() => query.refetch()} retryLabel={t('common.tryAgain')}>
+            {t('budget.error')}
+          </ErrorState>
         </div>
       ) : items.length === 0 ? (
         <div className="mt-5">
-          <State>{t('budget.empty')}</State>
+          <EmptyState>{t('budget.empty')}</EmptyState>
         </div>
       ) : (
         <div className="mt-5 overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
@@ -163,9 +162,8 @@ export function BudgetPage() {
                       : money.format(item.actualCost)}
                   </td>
                   <td className="p-3 text-right">
-                    <button
-                      className="mr-3 text-rose-800 underline"
-                      onClick={() => {
+                    <RecordActions
+                      onEdit={() => {
                         setEditing(item);
                         setForm({
                           name: item.name,
@@ -174,18 +172,13 @@ export function BudgetPage() {
                           actualCost: item.actualCost == null ? '' : String(item.actualCost),
                         });
                       }}
-                    >
-                      {t('common.edit')}
-                    </button>
-                    <button
-                      className="text-red-700 underline"
-                      onClick={() => {
+                      onDelete={() => {
                         if (confirm(t('budget.deleteConfirm', { name: item.name })))
                           remove.mutate(item.id);
                       }}
-                    >
-                      {t('common.delete')}
-                    </button>
+                      deleteDisabled={remove.isPending}
+                      className="justify-end"
+                    />
                   </td>
                 </tr>
               ))}
