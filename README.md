@@ -22,7 +22,7 @@ The seed creates `demo@weddingplanner.test` with password `password123` plus a c
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Run API and frontend in watch mode |
+| `npm run dev` | Run API and frontend concurrently in watch mode (both logs remain visible) |
 | `npm run build` | Build both applications |
 | `npm run typecheck` | Type-check both applications |
 | `npm run db:init` | Safely initialize a new SQLite database from the committed migration and seed it |
