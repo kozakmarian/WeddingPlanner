@@ -94,12 +94,16 @@ export function GuestsPage() {
           <Field label={t('guests.attendance')}>
             <Select
               value={f.attendance}
-              onChange={(e) => setF({ ...f, attendance: e.target.value as Guest['attendance'] })}
-            >
-              <option value="PENDING">{t('guests.pending')}</option>
-              <option value="ATTENDING">{t('guests.attending')}</option>
-              <option value="DECLINED">{t('guests.declined')}</option>
-            </Select>
+              aria-label={t('guests.attendance')}
+              onChange={(attendance) =>
+                setF({ ...f, attendance: attendance as Guest['attendance'] })
+              }
+              options={[
+                { value: 'PENDING', label: t('guests.pending') },
+                { value: 'ATTENDING', label: t('guests.attending') },
+                { value: 'DECLINED', label: t('guests.declined') },
+              ]}
+            />
           </Field>
           <Field label={t('guests.plusOnes')}>
             <Input

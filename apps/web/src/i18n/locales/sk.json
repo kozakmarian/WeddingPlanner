@@ -52,6 +52,7 @@
     "rsvps": "Potvrdenia",
     "confirmed": "{{count}} potvrdených",
     "estimated": "{{amount}} odhad",
+    "remaining": "Zostávajúci rozpočet",
     "toComplete": "{{count}} na dokončenie",
     "awaiting": "{{count}} čaká na odpoveď"
   },

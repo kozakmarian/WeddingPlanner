@@ -10,7 +10,7 @@ import {
   Input,
   Notice,
   PageHeader,
-  Listbox,
+  Select,
   State,
 } from '../../components/ui';
 import { supportedLanguages } from '../../i18n';
@@ -114,7 +114,7 @@ export function WeddingSettingsPage() {
         <Card>
           <div className="text-sm font-semibold text-[var(--text)]">
             <span>{t('settings.language')}</span>
-            <Listbox
+            <Select
               value={i18n.language}
               aria-label={t('settings.language')}
               onChange={(language) => i18n.changeLanguage(language)}

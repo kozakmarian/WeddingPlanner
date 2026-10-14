@@ -1,9 +1,4 @@
-import type {
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-  ReactNode,
-  SelectHTMLAttributes,
-} from 'react';
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
 const join = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(' ');
 export function Button({
@@ -64,25 +59,20 @@ export const Input = ({ className, ...props }: InputHTMLAttributes<HTMLInputElem
 export const DateInput = ({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) => (
   <Input type="date" className={className} {...props} />
 );
-export const Select = ({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) => (
-  <select
-    className={join(
-      'mt-1.5 block min-h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3.5 text-[var(--text)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--beige-dark)]',
-      className,
-    )}
-    {...props}
-  />
-);
-export function Listbox({
+export function Select({
   value,
   options,
   onChange,
   'aria-label': ariaLabel,
+  placeholder,
+  required = false,
 }: {
   value: string;
   options: readonly { value: string; label: string }[];
   onChange: (value: string) => void;
   'aria-label': string;
+  placeholder?: string;
+  required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(() =>
@@ -93,7 +83,7 @@ export function Listbox({
   );
   const listboxId = useId();
   const root = useRef<HTMLDivElement>(null);
-  const selected = options.find((option) => option.value === value) ?? options[0];
+  const selected = options.find((option) => option.value === value);
 
   useEffect(() => {
     setActiveIndex(
@@ -121,10 +111,13 @@ export function Listbox({
     >
       <button
         type="button"
+        role="combobox"
         aria-label={ariaLabel}
+        aria-required={required || undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
+        aria-activedescendant={open ? `${listboxId}-option-${activeIndex}` : undefined}
         className="flex min-h-11 w-full items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--background)] px-3.5 text-left text-[var(--text)] shadow-sm transition hover:border-[var(--primary-light)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--beige-dark)]"
         onClick={() => setOpen((isOpen) => !isOpen)}
         onKeyDown={(event) => {
@@ -144,7 +137,9 @@ export function Listbox({
           if (event.key === 'Escape') setOpen(false);
         }}
       >
-        <span>{selected.label}</span>
+        <span className={selected ? undefined : 'text-[var(--text-light)]'}>
+          {selected?.label ?? placeholder}
+        </span>
         <span aria-hidden="true" className="text-[var(--primary)]">
           ⌄
         </span>
@@ -159,6 +154,7 @@ export function Listbox({
           {options.map((option, index) => (
             <li
               key={option.value}
+              id={`${listboxId}-option-${index}`}
               role="option"
               aria-selected={option.value === value}
               className={join(

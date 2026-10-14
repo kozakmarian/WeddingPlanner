@@ -52,6 +52,7 @@
     "rsvps": "RSVPs",
     "confirmed": "{{count}} confirmed",
     "estimated": "{{amount}} estimated",
+    "remaining": "Remaining budget",
     "toComplete": "{{count}} to complete",
     "awaiting": "{{count}} awaiting reply"
   },

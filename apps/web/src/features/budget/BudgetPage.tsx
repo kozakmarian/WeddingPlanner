@@ -66,7 +66,7 @@ export function BudgetPage() {
   return (
     <section>
       <PageHeader title={t('budget.title')}>
-        <div className="flex flex-wrap gap-6 text-sm">
+        <div className="flex flex-col items-end gap-1 text-right text-sm">
           <span>
             <b>{money.format(wedding.data?.budget ?? 0)}</b> {t('budget.totalBudget')}
           </span>
@@ -87,18 +87,15 @@ export function BudgetPage() {
           <Field label={t('budget.category')}>
             <Select
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              aria-label={t('budget.category')}
+              placeholder={t('budget.categoryPlaceholder')}
               required
-            >
-              <option value="" disabled>
-                {t('budget.categoryPlaceholder')}
-              </option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {t(`budget.categories.${category}`)}
-                </option>
-              ))}
-            </Select>
+              onChange={(category) => setForm({ ...form, category })}
+              options={categories.map((category) => ({
+                value: category,
+                label: t(`budget.categories.${category}`),
+              }))}
+            />
           </Field>
           <Field label={t('budget.price')}>
             <Input
