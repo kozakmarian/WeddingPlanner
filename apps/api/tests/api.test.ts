@@ -71,6 +71,8 @@ test('authentication, validation, wedding settings, CRUD, and tenant isolation',
 
   const wedding = await request('/api/wedding', { headers: auth });
   assert.equal(wedding.response.status, 200);
+  assert.equal(wedding.body.groomName, null);
+  assert.equal(wedding.body.brideName, null);
   const weddingUpdate = await request('/api/wedding', {
     method: 'PUT',
     headers: auth,
@@ -85,6 +87,10 @@ test('authentication, validation, wedding settings, CRUD, and tenant isolation',
   assert.equal(weddingUpdate.body.groomName, 'Alex');
   assert.equal(weddingUpdate.body.brideName, 'Blair');
   assert.equal(weddingUpdate.body.name, 'Alex & Blair');
+  const persistedWedding = await request('/api/wedding', { headers: auth });
+  assert.equal(persistedWedding.response.status, 200);
+  assert.equal(persistedWedding.body.groomName, 'Alex');
+  assert.equal(persistedWedding.body.brideName, 'Blair');
 
   const guest = await request('/api/guests', {
     method: 'POST',

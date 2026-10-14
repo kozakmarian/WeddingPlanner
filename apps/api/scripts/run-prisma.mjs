@@ -11,7 +11,8 @@ function resolveDatabaseUrl(url) {
   if (!url?.startsWith('file:')) return url;
   const sqlitePath = url.slice('file:'.length);
   if (!sqlitePath.startsWith('.') || isAbsolute(sqlitePath)) return url;
-  return 'file:' + resolve(apiRoot, sqlitePath).replaceAll('\\', '/');
+  // Prisma resolves relative SQLite URLs from the schema directory.
+  return 'file:' + resolve(apiRoot, 'prisma', sqlitePath).replaceAll('\\', '/');
 }
 
 const databaseUrl = resolveDatabaseUrl(process.env.DATABASE_URL);

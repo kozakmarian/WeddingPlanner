@@ -12,7 +12,7 @@ dotenv.config({ path: resolve(repositoryRoot, '.env') });
 function databasePathFromUrl(url) {
   if (!url?.startsWith('file:')) return undefined;
   const configuredPath = url.slice('file:'.length);
-  return isAbsolute(configuredPath) ? configuredPath : resolve(apiRoot, configuredPath);
+  return isAbsolute(configuredPath) ? configuredPath : resolve(apiRoot, 'prisma', configuredPath);
 }
 
 const databasePath = databasePathFromUrl(process.env.DATABASE_URL);

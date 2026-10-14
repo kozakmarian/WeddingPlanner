@@ -15,7 +15,9 @@ if (!configuredUrl?.startsWith('file:')) {
 }
 
 const configuredPath = configuredUrl.slice('file:'.length);
-const databasePath = isAbsolute(configuredPath) ? configuredPath : resolve(apiRoot, configuredPath);
+const databasePath = isAbsolute(configuredPath)
+  ? configuredPath
+  : resolve(apiRoot, 'prisma', configuredPath);
 if (existsSync(databasePath)) {
   console.error('Refusing to initialize an existing database: ' + databasePath);
   console.error('Use a new DATABASE_URL for initialization; this command never deletes data.');
