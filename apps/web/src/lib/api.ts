@@ -1,3 +1,5 @@
+import { buildApiUrl } from './api-url';
+
 export type User = { id: string; email: string; createdAt: string };
 export type Wedding = { id: string; userId: string; name: string; date: string; location: string; budget: number; createdAt: string; updatedAt: string };
 export type Guest = { id: string; name: string; email: string | null; attendance: 'PENDING' | 'ATTENDING' | 'DECLINED'; accompanyingGuests: number };
@@ -10,7 +12,7 @@ export class ApiError extends Error { constructor(public status: number, message
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = authToken.get();
-  const response = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/api${path}`, {
+  const response = await fetch(buildApiUrl(path, import.meta.env.VITE_API_URL || '/api'), {
     ...options,
     headers: { ...(options.body ? { 'content-type': 'application/json' } : {}), ...(token ? { authorization: `Bearer ${token}` } : {}), ...options.headers },
   });
