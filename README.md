@@ -8,6 +8,11 @@ not split because their format cannot be determined safely. After deployment, op
 enter both names; saving writes the new fields and updates the legacy display name for backwards
 compatibility. Run `npm run db:migrate` (or `npm run db:init` only for a new SQLite database).
 
+`db:init` now creates new databases through Prisma Migrate, so it records migration history. For a
+legacy SQLite database created by an older `db:init`, `npm run db:migrate` first verifies the exact
+legacy schema, creates a consistent SQLite backup, baselines the initial migration, and then deploys
+pending migrations. It stops without changes if the schema is not the expected legacy shape.
+
 A full-stack wedding planning application built as an npm-workspaces monorepo.
 
 ## Prerequisites
