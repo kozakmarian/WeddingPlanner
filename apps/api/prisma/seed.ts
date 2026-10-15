@@ -13,21 +13,21 @@ async function main() {
   const wedding = await prisma.wedding.upsert({
     where: { userId: user.id },
     update: {
-      name: 'Alex & Sam',
-      groomName: 'Alex',
-      brideName: 'Sam',
-      date: new Date('2027-06-12'),
-      location: 'Chateau Bela',
-      budget: 25000,
+      name: 'Marian & Kristina',
+      groomName: 'Marian',
+      brideName: 'Kristina',
+      date: new Date('2026-10-25'),
+      location: 'Sála Bačíkova',
+      budget: 20000,
     },
     create: {
       userId: user.id,
-      name: 'Alex & Sam',
-      groomName: 'Alex',
-      brideName: 'Sam',
-      date: new Date('2027-06-12'),
-      location: 'Chateau Bela',
-      budget: 25000,
+      name: 'Marian & Kristina',
+      groomName: 'Marian',
+      brideName: 'Kristina',
+      date: new Date('2026-10-25'),
+      location: 'Sála Bačíkova',
+      budget: 20000,
     },
   });
   await prisma.guest.deleteMany({ where: { weddingId: wedding.id } });
@@ -37,17 +37,24 @@ async function main() {
     data: [
       {
         weddingId: wedding.id,
-        name: 'Jamie Novak',
-        email: 'jamie@example.com',
-        attendance: AttendanceStatus.ATTENDING,
-        accompanyingGuests: 1,
+        name: 'Janko Hrasko',
+        email: 'jankohrasko@test.com',
+        attendance: AttendanceStatus.PENDING,
+        accompanyingGuests: 0,
       },
       {
         weddingId: wedding.id,
-        name: 'Taylor Smith',
-        email: 'taylor@example.com',
+        name: 'Jozko Mrkvicka',
+        email: null,
         attendance: AttendanceStatus.PENDING,
         accompanyingGuests: 0,
+      },
+      {
+        weddingId: wedding.id,
+        name: 'Marienka Novakova',
+        email: 'novakova@test.com',
+        attendance: AttendanceStatus.ATTENDING,
+        accompanyingGuests: 1,
       },
     ],
   });
@@ -55,23 +62,57 @@ async function main() {
     data: [
       {
         weddingId: wedding.id,
-        name: 'Venue',
+        name: 'Sala Bacikova',
         category: 'Venue',
-        estimatedCost: 8500,
-        actualCost: 8000,
+        estimatedCost: 6300,
+        actualCost: 6300,
       },
-      { weddingId: wedding.id, name: 'Flowers', category: 'Decor', estimatedCost: 1800 },
+      {
+        weddingId: wedding.id,
+        name: 'Catering',
+        category: 'Catering',
+        estimatedCost: 3500,
+        actualCost: 3500,
+      },
+      {
+        weddingId: wedding.id,
+        name: 'Foto Marian',
+        category: 'Photography',
+        estimatedCost: 945,
+        actualCost: 945,
+      },
+      {
+        weddingId: wedding.id,
+        name: 'Sylband',
+        category: 'Music',
+        estimatedCost: 1350,
+        actualCost: 1350,
+      },
     ],
   });
   await prisma.task.createMany({
     data: [
       {
         weddingId: wedding.id,
-        title: 'Book photographer',
-        description: 'Confirm the full-day package',
-        dueDate: new Date('2027-01-15'),
+        title: 'Kvety',
+        description: 'Vybavit vyzdobu saly',
+        dueDate: new Date('2026-10-18'),
+        completed: false,
       },
-      { weddingId: wedding.id, title: 'Send invitations', dueDate: new Date('2027-03-01') },
+      {
+        weddingId: wedding.id,
+        title: 'Kolace',
+        description: 'Odniest kolace do saly',
+        dueDate: new Date('2026-10-24'),
+        completed: false,
+      },
+      {
+        weddingId: wedding.id,
+        title: 'Sala',
+        description: 'Zarezervovat Salu Bacikovu',
+        dueDate: new Date('2026-10-15'),
+        completed: true,
+      },
     ],
   });
   console.log('Seeded demo@weddingplanner.test / password123');
