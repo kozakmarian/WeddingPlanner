@@ -1,0 +1,39 @@
+{
+  "name": "@wedding-planner/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/initialize-test-database.mjs && node --import tsx --test --test-concurrency=1 tests/**/*.test.ts",
+    "db:generate": "node scripts/run-prisma.mjs generate",
+    "db:migrate": "node scripts/upgrade-legacy-database.mjs",
+    "db:migrate:dev": "node scripts/run-prisma.mjs migrate dev",
+    "db:seed": "node scripts/run-prisma.mjs db seed",
+    "db:init": "node scripts/initialize-database.mjs"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.8.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "dotenv-cli": "^8.0.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "prisma": "6.8.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

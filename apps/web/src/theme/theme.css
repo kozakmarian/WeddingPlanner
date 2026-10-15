@@ -1,0 +1,60 @@
+:root {
+  --primary: #8b6b47;
+  --primary-dark: #6b4e37;
+  --primary-light: #a67c5a;
+  --secondary: #6b8e4b;
+  --secondary-dark: #4f6b37;
+  --secondary-light: #85a663;
+  --beige: #f5e6d3;
+  --beige-dark: #e8d5c0;
+  --beige-light: #faf2e8;
+  --text: #2c2c2c;
+  --text-muted: #6b6b6b;
+  --text-light: #9b9b9b;
+  --on-dark: #fff;
+  --background: #fdfcfa;
+  --background-secondary: #f5e6d3;
+  --celebration-background: var(--beige-light);
+  --background-dark: #2c2c2c;
+  --success: #6b8e4b;
+  --error: #c44536;
+  --error-text: #b42318;
+  --warning: #d4a574;
+  --info: #7a9cc6;
+  --border: #e0d0c0;
+  --shadow: #00000015;
+  --tab-active: #8b6b47;
+  --tab-inactive: #9b9b9b;
+  --shadow-sm: 0 2px 8px #0000000d;
+  --shadow-md: 0 8px 24px #00000015;
+  --shadow-lg: 0 18px 48px #0000001f;
+}
+[data-theme='dark'] {
+  --background: #1a1a1a;
+  --background-secondary: #2c2c2c;
+  --celebration-background: var(--background-secondary);
+  --text: #fff;
+  --text-muted: #b0b0b0;
+  --text-light: #808080;
+  --border: #404040;
+  --tab-active: #8b6b47;
+  --error-text: #ff8a80;
+}
+
+/* Legacy utility classes used by record forms and tables inherit the active theme. */
+[data-theme='dark'] .bg-white,
+[data-theme='dark'] .bg-stone-50 {
+  background-color: var(--background) !important;
+}
+
+[data-theme='dark'] .text-stone-600,
+[data-theme='dark'] .text-stone-500,
+[data-theme='dark'] .text-stone-400 {
+  color: var(--text-muted) !important;
+}
+
+[data-theme='dark'] .border-stone-100,
+[data-theme='dark'] .ring-stone-200 {
+  border-color: var(--border) !important;
+  --tw-ring-color: var(--border) !important;
+}

@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+coverage
+apps/api/node_modules/.prisma
+**/*.db
+**/*.db-journal
+package-lock.json
+.env
+.env.*
+!.env.example
+.idea
