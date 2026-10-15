@@ -41,6 +41,7 @@ export function GuestsPage() {
       setSuccess(t('guests.saved'));
     },
   });
+  const saveErrors = fieldErrors(save.error);
   const del = useMutation({
     mutationFn: api.deleteGuest,
     onSuccess: () => {
@@ -84,17 +85,17 @@ export function GuestsPage() {
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-4 md:grid-cols-4">
-          <Field label={t('guests.name')} error={fieldErrors(save.error).name?.[0]}>
+          <Field label={t('guests.name')} error={saveErrors.name?.[0]}>
             <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
           </Field>
-          <Field label={t('guests.email')} error={fieldErrors(save.error).email?.[0]}>
+          <Field label={t('guests.email')} error={saveErrors.email?.[0]}>
             <Input
               type="email"
               value={f.email}
               onChange={(e) => setF({ ...f, email: e.target.value })}
             />
           </Field>
-          <Field label={t('guests.attendance')} error={fieldErrors(save.error).attendance?.[0]}>
+          <Field label={t('guests.attendance')} error={saveErrors.attendance?.[0]}>
             <Select
               value={f.attendance}
               aria-label={t('guests.attendance')}
@@ -108,10 +109,7 @@ export function GuestsPage() {
               ]}
             />
           </Field>
-          <Field
-            label={t('guests.plusOnes')}
-            error={fieldErrors(save.error).accompanyingGuests?.[0]}
-          >
+          <Field label={t('guests.plusOnes')} error={saveErrors.accompanyingGuests?.[0]}>
             <Input
               type="number"
               min="0"
@@ -138,7 +136,10 @@ export function GuestsPage() {
             )}
           </div>
           {save.isError && (
-            <p role="alert" className="text-sm text-[var(--error)] md:col-span-4">
+            <p
+              role={Object.keys(saveErrors).length === 0 ? 'alert' : undefined}
+              className="text-sm text-[var(--error-text)] md:col-span-4"
+            >
               {save.error.message}
             </p>
           )}
@@ -150,7 +151,7 @@ export function GuestsPage() {
         </div>
       )}
       {del.isError && (
-        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+        <p role="alert" className="mt-4 text-sm text-[var(--error-text)]">
           {del.error.message}
         </p>
       )}

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, authToken, type User } from '../../lib/api';
+import { api, authToken, fieldErrors, type User } from '../../lib/api';
 import { Button, Card, Field, Input } from '../../components/ui';
 import { useAuth } from './AuthProvider';
 
@@ -11,6 +11,7 @@ function AuthForm({ register }: { register?: boolean }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -21,13 +22,23 @@ function AuthForm({ register }: { register?: boolean }) {
       login(user);
       navigate((location.state as { from?: string } | null)?.from ?? '/');
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      setError(e.message);
+      setValidationErrors(fieldErrors(e));
+    },
   });
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setError('');
-    if (!/^\S+@\S+\.\S+$/.test(email)) return setError(t('auth.validEmail'));
-    if (password.length < 8) return setError(t('auth.validPassword'));
+    setValidationErrors({});
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setValidationErrors({ email: [t('auth.validEmail')] });
+      return;
+    }
+    if (password.length < 8) {
+      setValidationErrors({ password: [t('auth.validPassword')] });
+      return;
+    }
     mutation.mutate({ email, password });
   };
   return (
@@ -51,7 +62,7 @@ function AuthForm({ register }: { register?: boolean }) {
               {t(register ? 'auth.registerText' : 'auth.loginText')}
             </p>
             <form onSubmit={submit} className="mt-7 space-y-4">
-              <Field label={t('auth.email')}>
+              <Field label={t('auth.email')} error={validationErrors.email?.[0]}>
                 <Input
                   type="email"
                   autoComplete="email"
@@ -60,7 +71,7 @@ function AuthForm({ register }: { register?: boolean }) {
                   required
                 />
               </Field>
-              <Field label={t('auth.password')}>
+              <Field label={t('auth.password')} error={validationErrors.password?.[0]}>
                 <Input
                   type="password"
                   autoComplete={register ? 'new-password' : 'current-password'}
@@ -70,8 +81,8 @@ function AuthForm({ register }: { register?: boolean }) {
                   minLength={8}
                 />
               </Field>
-              {error && (
-                <p role="alert" className="text-sm text-[var(--error)]">
+              {error && Object.keys(validationErrors).length === 0 && (
+                <p role="alert" className="text-sm text-[var(--error-text)]">
                   {error}
                 </p>
               )}

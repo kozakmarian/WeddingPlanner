@@ -48,6 +48,7 @@ export function WeddingSettingsPage() {
       setSuccess(t('settings.saved'));
     },
   });
+  const saveErrors = fieldErrors(save.error);
   if (client.isLoading) return <State>{t('settings.loading')}</State>;
   if (client.isError)
     return (
@@ -71,28 +72,28 @@ export function WeddingSettingsPage() {
       <div className="grid max-w-2xl gap-5">
         <Card>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
-            <Field label={t('settings.groomName')} error={fieldErrors(save.error).groomName?.[0]}>
+            <Field label={t('settings.groomName')} error={saveErrors.groomName?.[0]}>
               <Input
                 value={form.groomName}
                 onChange={(event) => setForm({ ...form, groomName: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.brideName')} error={fieldErrors(save.error).brideName?.[0]}>
+            <Field label={t('settings.brideName')} error={saveErrors.brideName?.[0]}>
               <Input
                 value={form.brideName}
                 onChange={(event) => setForm({ ...form, brideName: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.date')} error={fieldErrors(save.error).date?.[0]}>
+            <Field label={t('settings.date')} error={saveErrors.date?.[0]}>
               <DateInput
                 value={form.date}
                 onChange={(event) => setForm({ ...form, date: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.budget')} error={fieldErrors(save.error).budget?.[0]}>
+            <Field label={t('settings.budget')} error={saveErrors.budget?.[0]}>
               <Input
                 type="number"
                 min="0"
@@ -104,7 +105,10 @@ export function WeddingSettingsPage() {
             </Field>
             <div className="sm:col-span-2">
               {save.isError && (
-                <p role="alert" className="mb-3 text-sm text-[var(--error)]">
+                <p
+                  role={Object.keys(saveErrors).length === 0 ? 'alert' : undefined}
+                  className="mb-3 text-sm text-[var(--error-text)]"
+                >
                   {save.error.message}
                 </p>
               )}

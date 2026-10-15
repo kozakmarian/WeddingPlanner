@@ -18,6 +18,7 @@
   --background-dark: #2c2c2c;
   --success: #6b8e4b;
   --error: #c44536;
+  --error-text: #b42318;
   --warning: #d4a574;
   --info: #7a9cc6;
   --border: #e0d0c0;
@@ -37,6 +38,7 @@
   --text-light: #808080;
   --border: #404040;
   --tab-active: #8b6b47;
+  --error-text: #ff8a80;
 }
 
 /* Legacy utility classes used by record forms and tables inherit the active theme. */

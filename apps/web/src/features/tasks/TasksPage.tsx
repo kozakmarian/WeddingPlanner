@@ -29,6 +29,7 @@ export function TasksPage() {
       setSuccess(t(editing ? 'tasks.updated' : 'tasks.added'));
     },
   });
+  const saveErrors = fieldErrors(save.error);
   const remove = useMutation({
     mutationFn: api.deleteTask,
     onSuccess: () => {
@@ -61,20 +62,20 @@ export function TasksPage() {
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
-          <Field label={t('tasks.task')} error={fieldErrors(save.error).title?.[0]}>
+          <Field label={t('tasks.task')} error={saveErrors.title?.[0]}>
             <Input
               value={form.title}
               onChange={(event) => setForm({ ...form, title: event.target.value })}
               required
             />
           </Field>
-          <Field label={t('tasks.description')} error={fieldErrors(save.error).description?.[0]}>
+          <Field label={t('tasks.description')} error={saveErrors.description?.[0]}>
             <Input
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
             />
           </Field>
-          <Field label={t('tasks.dueDate')} error={fieldErrors(save.error).dueDate?.[0]}>
+          <Field label={t('tasks.dueDate')} error={saveErrors.dueDate?.[0]}>
             <Input
               type="date"
               value={form.dueDate}
@@ -100,7 +101,10 @@ export function TasksPage() {
             )}
           </div>
           {save.isError && (
-            <p role="alert" className="text-sm text-[var(--error)] md:col-span-3">
+            <p
+              role={Object.keys(saveErrors).length === 0 ? 'alert' : undefined}
+              className="text-sm text-[var(--error-text)] md:col-span-3"
+            >
               {save.error.message}
             </p>
           )}
@@ -112,12 +116,12 @@ export function TasksPage() {
         </div>
       )}
       {remove.isError && (
-        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+        <p role="alert" className="mt-4 text-sm text-[var(--error-text)]">
           {remove.error.message}
         </p>
       )}
       {toggle.isError && (
-        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+        <p role="alert" className="mt-4 text-sm text-[var(--error-text)]">
           {toggle.error.message}
         </p>
       )}

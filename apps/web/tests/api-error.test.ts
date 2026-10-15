@@ -22,7 +22,8 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 });
 
-const { ApiError, api, request } = await import('../src/lib/api.ts');
+const { ApiError, api, localizeFieldErrors, request } = await import('../src/lib/api.ts');
+const { default: i18n } = await import('../src/i18n/index.ts');
 
 test('malformed successful API responses become a safe API error', async () => {
   const previousFetch = globalThis.fetch;
@@ -63,4 +64,24 @@ test('invalid login credentials do not trigger global session invalidation', asy
   assert.equal(invalidations, 0);
   globalThis.fetch = previousFetch;
   unregister();
+});
+
+test('known field validation errors are localized in English and Slovak', async () => {
+  await i18n.changeLanguage('en');
+  assert.deepEqual(localizeFieldErrors({ email: ['Invalid email'] }), {
+    email: ['Enter a valid email address.'],
+  });
+
+  await i18n.changeLanguage('sk');
+  assert.deepEqual(localizeFieldErrors({ date: ['Expected a real calendar date.'] }), {
+    date: ['Zadajte platný dátum.'],
+  });
+  await i18n.changeLanguage('en');
+});
+
+test('unknown field validation errors use a safe localized fallback', async () => {
+  await i18n.changeLanguage('en');
+  assert.deepEqual(localizeFieldErrors({ name: ['Internal parser detail: 42'] }), {
+    name: ['Check this value and try again.'],
+  });
 });

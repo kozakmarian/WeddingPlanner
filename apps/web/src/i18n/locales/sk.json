@@ -155,7 +155,14 @@
     "conflict": "Zmena je v konflikte s existujúcimi údajmi. Obnovte stránku a skúste to znova.",
     "serverError": "Služba je dočasne nedostupná. Skúste to neskôr.",
     "networkError": "Nepodarilo sa spojiť so službou. Skontrolujte pripojenie a skúste to znova.",
-    "invalidResponse": "Služba vrátila neplatnú odpoveď. Skúste to znova."
+    "invalidResponse": "Služba vrátila neplatnú odpoveď. Skúste to znova.",
+    "fieldRequired": "Toto pole je povinné.",
+    "fieldInvalidEmail": "Zadajte platnú e-mailovú adresu.",
+    "fieldInvalidNumber": "Zadajte platné nezáporné číslo.",
+    "fieldInvalidDate": "Zadajte platný dátum.",
+    "fieldInvalidOption": "Vyberte platnú možnosť.",
+    "fieldTooLong": "Zadajte kratšiu hodnotu.",
+    "fieldValidationFallback": "Skontrolujte túto hodnotu a skúste to znova."
   },
   "router": { "restoring": "Obnovuje sa relácia…" }
 }

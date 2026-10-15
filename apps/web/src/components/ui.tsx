@@ -1,5 +1,11 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
-import { useEffect, useId, useRef, useState } from 'react';
+import type {
+  AriaAttributes,
+  ButtonHTMLAttributes,
+  InputHTMLAttributes,
+  ReactElement,
+  ReactNode,
+} from 'react';
+import { cloneElement, useEffect, useId, useRef, useState } from 'react';
 const join = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(' ');
 export function Button({
   className,
@@ -35,12 +41,18 @@ export function Field({
   error?: string;
   children: ReactNode;
 }) {
+  const errorId = useId();
+  const field = cloneElement(children as ReactElement<AriaAttributes>, {
+    'aria-describedby': error ? errorId : undefined,
+    'aria-invalid': error ? true : undefined,
+  });
+
   return (
     <label className="block text-sm font-semibold text-[var(--text)]">
       <span>{label}</span>
-      {children}
+      {field}
       {error && (
-        <span role="alert" className="mt-1 block text-xs text-[var(--error)]">
+        <span id={errorId} role="alert" className="mt-1 block text-xs text-[var(--error-text)]">
           {error}
         </span>
       )}
@@ -64,6 +76,8 @@ export function Select({
   options,
   onChange,
   'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   placeholder,
   required = false,
 }: {
@@ -71,6 +85,8 @@ export function Select({
   options: readonly { value: string; label: string }[];
   onChange: (value: string) => void;
   'aria-label': string;
+  'aria-describedby'?: AriaAttributes['aria-describedby'];
+  'aria-invalid'?: AriaAttributes['aria-invalid'];
   placeholder?: string;
   required?: boolean;
 }) {
@@ -113,6 +129,8 @@ export function Select({
         type="button"
         role="combobox"
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         aria-required={required || undefined}
         aria-haspopup="listbox"
         aria-expanded={open}

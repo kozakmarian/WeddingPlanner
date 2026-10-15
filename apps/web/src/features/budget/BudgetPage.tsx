@@ -41,6 +41,7 @@ export function BudgetPage() {
       setSuccess(t(editing ? 'budget.updated' : 'budget.added'));
     },
   });
+  const saveErrors = fieldErrors(save.error);
   const remove = useMutation({
     mutationFn: api.deleteBudget,
     onSuccess: () => {
@@ -80,14 +81,14 @@ export function BudgetPage() {
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
-          <Field label={t('budget.item')} error={fieldErrors(save.error).name?.[0]}>
+          <Field label={t('budget.item')} error={saveErrors.name?.[0]}>
             <Input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
             />
           </Field>
-          <Field label={t('budget.category')} error={fieldErrors(save.error).category?.[0]}>
+          <Field label={t('budget.category')} error={saveErrors.category?.[0]}>
             <Select
               value={form.category}
               aria-label={t('budget.category')}
@@ -100,7 +101,7 @@ export function BudgetPage() {
               }))}
             />
           </Field>
-          <Field label={t('budget.price')} error={fieldErrors(save.error).actualCost?.[0]}>
+          <Field label={t('budget.price')} error={saveErrors.actualCost?.[0]}>
             <Input
               type="number"
               min="0"
@@ -128,7 +129,10 @@ export function BudgetPage() {
             )}
           </div>
           {save.isError && (
-            <p role="alert" className="text-sm text-red-700 md:col-span-3">
+            <p
+              role={Object.keys(saveErrors).length === 0 ? 'alert' : undefined}
+              className="text-sm text-[var(--error-text)] md:col-span-3"
+            >
               {save.error.message}
             </p>
           )}
@@ -201,7 +205,7 @@ export function BudgetPage() {
         </div>
       )}
       {remove.isError && (
-        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+        <p role="alert" className="mt-4 text-sm text-[var(--error-text)]">
           {remove.error.message}
         </p>
       )}

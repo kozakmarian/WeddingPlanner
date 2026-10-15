@@ -71,13 +71,46 @@ export function fieldErrors(error: unknown) {
   return error instanceof ApiError ? error.fieldErrors : {};
 }
 
+export function localizeFieldValidationMessage(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes('invalid email')) return i18n.t('api.fieldInvalidEmail');
+  if (normalized.includes('valid yyyy-mm-dd') || normalized.includes('real calendar date'))
+    return i18n.t('api.fieldInvalidDate');
+  if (
+    normalized.includes('finite numeric') ||
+    normalized.includes('expected number') ||
+    normalized.includes('greater than or equal to 0') ||
+    normalized.includes('expected integer')
+  )
+    return i18n.t('api.fieldInvalidNumber');
+  if (normalized.includes('invalid enum') || normalized.includes('invalid literal'))
+    return i18n.t('api.fieldInvalidOption');
+  if (normalized.includes('must contain at most')) return i18n.t('api.fieldTooLong');
+  if (
+    normalized === 'required' ||
+    normalized.includes('must contain at least') ||
+    normalized.includes('expected string')
+  )
+    return i18n.t('api.fieldRequired');
+  return i18n.t('api.fieldValidationFallback');
+}
+
+export function localizeFieldErrors(errors: Record<string, string[]> = {}) {
+  return Object.fromEntries(
+    Object.entries(errors).map(([field, messages]) => [
+      field,
+      messages.map(localizeFieldValidationMessage),
+    ]),
+  );
+}
+
 async function errorFromResponse(response: Response) {
   const body = (await response.json().catch(() => undefined)) as
     { error?: { details?: { fieldErrors?: Record<string, string[]> } } } | undefined;
   return new ApiError(
     response.status,
     apiErrorMessage(response.status),
-    body?.error?.details?.fieldErrors ?? {},
+    localizeFieldErrors(body?.error?.details?.fieldErrors),
   );
 }
 

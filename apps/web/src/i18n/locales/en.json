@@ -155,7 +155,14 @@
     "conflict": "This change conflicts with existing data. Please refresh and try again.",
     "serverError": "The service is temporarily unavailable. Please try again later.",
     "networkError": "We could not reach the service. Check your connection and try again.",
-    "invalidResponse": "The service returned an invalid response. Please try again."
+    "invalidResponse": "The service returned an invalid response. Please try again.",
+    "fieldRequired": "This field is required.",
+    "fieldInvalidEmail": "Enter a valid email address.",
+    "fieldInvalidNumber": "Enter a valid non-negative number.",
+    "fieldInvalidDate": "Enter a valid calendar date.",
+    "fieldInvalidOption": "Choose a valid option.",
+    "fieldTooLong": "Enter a shorter value.",
+    "fieldValidationFallback": "Check this value and try again."
   },
   "router": { "restoring": "Restoring your session…" }
 }
