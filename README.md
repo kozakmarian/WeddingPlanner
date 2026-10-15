@@ -74,4 +74,4 @@ All wedding-bound access will be scoped to the authenticated user's one-to-one `
 
 ### SQLite initialization on Windows
 
-Prisma's migration engine can fail with relative SQLite URLs on some Windows/Node 24 environments. `npm run db:init` is the reliable, automated setup command: it resolves the database path, refuses to overwrite an existing file, applies the committed `migration.sql` through Prisma, and runs the seed. To initialize a disposable database, set `DATABASE_URL` to an unused path before running the command.
+Prisma's migration engine can fail with relative SQLite URLs on some Windows/Node 24 environments. `npm run db:init` is the reliable, automated setup command: it resolves the database path, creates its parent directory and a new empty SQLite file, refuses to overwrite an existing file, applies the committed migrations through Prisma, and runs the seed. Use `db:init` only for a new database; use `npm run db:migrate` for an existing database. To initialize a disposable database, set `DATABASE_URL` to an unused path before running the command.

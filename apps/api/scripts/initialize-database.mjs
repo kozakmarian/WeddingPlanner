@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { resolve, isAbsolute } from 'node:path';
+import { dirname, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
@@ -18,24 +18,53 @@ const configuredPath = configuredUrl.slice('file:'.length);
 const databasePath = isAbsolute(configuredPath)
   ? configuredPath
   : resolve(apiRoot, 'prisma', configuredPath);
-if (existsSync(databasePath)) {
-  console.error('Refusing to initialize an existing database: ' + databasePath);
-  console.error('Use a new DATABASE_URL for initialization; this command never deletes data.');
-  process.exit(1);
+
+function createEmptyDatabaseFile() {
+  try {
+    mkdirSync(dirname(databasePath), { recursive: true });
+  } catch (error) {
+    console.error('Unable to create the SQLite database directory: ' + dirname(databasePath));
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+
+  try {
+    closeSync(openSync(databasePath, 'wx'));
+  } catch (error) {
+    if (error && typeof error === 'object' && error.code === 'EEXIST') {
+      console.error('Refusing to initialize an existing database: ' + databasePath);
+      console.error('Use a new DATABASE_URL for initialization; this command never deletes data.');
+    } else {
+      console.error('Unable to create an empty SQLite database file: ' + databasePath);
+      console.error(error instanceof Error ? error.message : error);
+    }
+    process.exit(1);
+  }
 }
 
 const databaseUrl = 'file:' + databasePath.replaceAll('\\', '/');
 
 function run(args) {
-  const result = spawnSync(['npx', 'prisma', ...args].join(' '), {
+  return spawnSync(['npx', 'prisma', ...args].join(' '), {
     cwd: apiRoot,
     env: { ...process.env, DATABASE_URL: databaseUrl },
     shell: true,
     stdio: 'inherit',
   });
-  if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-run(['generate']);
-run(['migrate', 'deploy', '--schema', 'prisma/schema.prisma']);
-run(['db', 'seed']);
+createEmptyDatabaseFile();
+for (const args of [
+  ['generate'],
+  ['migrate', 'deploy', '--schema', 'prisma/schema.prisma'],
+  ['db', 'seed'],
+]) {
+  const result = run(args);
+  if (result.status !== 0) {
+    console.error(`Initialization did not complete. The new database was kept at ${databasePath}.`);
+    console.error(
+      'After resolving the error, remove only this unused database file before retrying db:init.',
+    );
+    process.exit(result.status ?? 1);
+  }
+}
