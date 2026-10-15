@@ -1,48 +1,67 @@
 # Wedding Planner
 
-## Wedding names migration
-
-`20261014120000_add_partner_names` adds nullable `groomName` and `brideName` columns without
-changing the legacy `name` or `location` values. Existing combined wedding names are deliberately
-not split because their format cannot be determined safely. After deployment, open Settings and
-enter both names; saving writes the new fields and updates the legacy display name for backwards
-compatibility. Run `npm run db:migrate` (or `npm run db:init` only for a new SQLite database).
-
-`db:init` now creates new databases through Prisma Migrate, so it records migration history. For a
-legacy SQLite database created by an older `db:init`, `npm run db:migrate` first verifies the exact
-legacy schema, creates a consistent SQLite backup, baselines the initial migration, and then deploys
-pending migrations. It stops without changes if the schema is not the expected legacy shape.
-
-A full-stack wedding planning application built as an npm-workspaces monorepo.
+Full-stack wedding-planning application built as an npm-workspaces monorepo: React/Vite frontend, Express REST API, and Prisma with SQLite.
 
 ## Prerequisites
 
-- Node.js 20 or newer
-- npm 10 or newer
+- Node.js 20 or newer (as specified in `package.json`)
+- npm (included with Node.js)
 
-## Getting started
+## Installation and database setup
 
-1. Copy `.env.example` to `.env` at the repository root. The supplied SQLite URL works as-is.
-2. Install dependencies: `npm install`
-3. Initialize a new database: `npm run db:init`
-4. Start the API and web app: `npm run dev`
+```bash
+git clone https://github.com/kozakmarian/WeddingPlanner.git
+cd WeddingPlanner
+npm install
+```
 
-The API starts at `http://localhost:3000` and Vite prints the web URL (normally `http://localhost:5173`). The health endpoint is `GET /api/health`.
+Copy `.env.example` to `.env` in the repository root. The example is ready for local use; change `JWT_SECRET` to a long random value when appropriate. `VITE_API_URL` must include the `/api` suffix.
 
-The seed creates `demo@weddingplanner.test` with password `password123` plus a complete sample wedding.
+```bash
+npm run db:init
+```
+
+`db:init` is for a fresh SQLite database. It creates a new empty database, applies all committed Prisma migrations, and seeds demonstration data. It never resets or overwrites an existing database, so no database tables need to be created manually.
+
+For an existing database, use `npm run db:migrate` instead. It applies committed Prisma migrations (and safely handles the expected legacy database baseline); it does not seed a new database. Do not run `db:init` against an existing database.
+
+## Run the application
+
+```bash
+npm run dev
+```
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000/api`
+- Health check: `http://localhost:3000/api/health`
+
+The default `.env.example` configures the frontend for this local API URL. The API accepts `FRONTEND_ORIGIN` optionally for CORS (default: `http://localhost:5173`).
+
+## Demo account and seeded data
+
+**Email:** `demo@weddingplanner.test`<br>
+**Password:** `password123`
+
+A freshly initialized database includes:
+
+- Wedding — Groom: Marian; Bride: Kristina; date: 2026-10-25; total budget: 20000 EUR
+- Guests: 3
+- Budget items: 4
+- Tasks: 3
+- Total expenses: 12095 EUR; remaining budget: 7905 EUR
 
 ## Commands
 
-| Command                                     | Purpose                                                                          |
-| ------------------------------------------- | -------------------------------------------------------------------------------- |
-| `npm run dev`                               | Run API and frontend concurrently in watch mode (both logs remain visible)       |
-| `npm run build`                             | Build both applications                                                          |
-| `npm run typecheck`                         | Type-check both applications                                                     |
-| `npm run db:init`                           | Safely initialize a new SQLite database from the committed migration and seed it |
-| `npm run db:migrate`                        | Apply committed Prisma migrations                                                |
-| `npm run db:migrate:dev`                    | Create a new migration during development                                        |
-| `npm test --workspace=@wedding-planner/api` | Initialize an isolated database in `C:/tmp` and run API integration tests        |
-| `npm test --workspace=@wedding-planner/web` | Run frontend unit tests                                                          |
+| Command                                     | Purpose                                                              |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| `npm run dev`                               | Run API and frontend concurrently in development mode.               |
+| `npm run db:init`                           | Initialize a fresh SQLite database, migrate it, and seed demo data.  |
+| `npm run db:migrate`                        | Apply committed Prisma migrations to an existing database.           |
+| `npm test --workspace=@wedding-planner/api` | Run backend integration tests with an isolated database in `C:/tmp`. |
+| `npm test --workspace=@wedding-planner/web` | Run frontend unit tests.                                             |
+| `npm run typecheck`                         | Type-check both workspaces.                                          |
+| `npm run format:check`                      | Check formatting with Prettier.                                      |
+| `npm run build`                             | Build both applications for production.                              |
 
 ## API
 
