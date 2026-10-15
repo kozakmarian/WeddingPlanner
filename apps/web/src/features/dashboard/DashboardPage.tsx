@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IoCheckmarkDoneOutline, IoPeopleOutline, IoWalletOutline } from 'react-icons/io5';
 import { api } from '../../lib/api';
 import { Card, PageHeader, State } from '../../components/ui';
+import { ErrorState } from '../../components/feedback/AsyncState';
 import { getLocale } from '../../i18n';
 import { calculateBudgetSummary } from '../budget/budget-summary';
 import { daysUntilWedding, weddingDateFromValue } from './dashboard-utils';
@@ -19,7 +20,16 @@ export function DashboardPage() {
   if ([wedding, guests, budget, tasks].some((q) => q.isLoading))
     return <State>{t('dashboard.loading')}</State>;
   if ([wedding, guests, budget, tasks].some((q) => q.isError))
-    return <State>{t('dashboard.error')}</State>;
+    return (
+      <ErrorState
+        retryLabel={t('common.tryAgain')}
+        onRetry={() =>
+          void Promise.all([wedding.refetch(), guests.refetch(), budget.refetch(), tasks.refetch()])
+        }
+      >
+        {t('dashboard.error')}
+      </ErrorState>
+    );
   const locale = getLocale(i18n.language);
   const money = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
   const weddingDate = weddingDateFromValue(wedding.data!.date);

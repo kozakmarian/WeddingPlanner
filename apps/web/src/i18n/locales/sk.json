@@ -33,6 +33,7 @@
     "edit": "Upraviť",
     "delete": "Odstrániť",
     "tryAgain": "Skúsiť znova",
+    "unsavedChangesConfirm": "Chcete zahodiť neuložené zmeny?",
     "notAvailable": "—"
   },
   "dashboard": {
@@ -145,6 +146,16 @@
     "english": "Angličtina",
     "slovak": "Slovenčina"
   },
-  "api": { "genericError": "Niečo sa pokazilo. Skúste to znova." },
+  "api": {
+    "genericError": "Niečo sa pokazilo. Skúste to znova.",
+    "validationError": "Skontrolujte zvýraznené polia.",
+    "unauthorized": "Vaša relácia sa skončila. Prihláste sa znova.",
+    "forbidden": "Na túto akciu nemáte oprávnenie.",
+    "notFound": "Požadovaná položka už nie je k dispozícii.",
+    "conflict": "Zmena je v konflikte s existujúcimi údajmi. Obnovte stránku a skúste to znova.",
+    "serverError": "Služba je dočasne nedostupná. Skúste to neskôr.",
+    "networkError": "Nepodarilo sa spojiť so službou. Skontrolujte pripojenie a skúste to znova.",
+    "invalidResponse": "Služba vrátila neplatnú odpoveď. Skúste to znova."
+  },
   "router": { "restoring": "Obnovuje sa relácia…" }
 }

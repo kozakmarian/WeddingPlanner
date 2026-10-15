@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../lib/api';
+import { api, fieldErrors } from '../../lib/api';
 import {
   Button,
   Card,
@@ -14,6 +14,8 @@ import {
   State,
 } from '../../components/ui';
 import { supportedLanguages } from '../../i18n';
+import { useUnsavedChanges } from '../../components/feedback/useUnsavedChanges';
+import { ErrorState } from '../../components/feedback/AsyncState';
 
 export function WeddingSettingsPage() {
   const { t, i18n } = useTranslation();
@@ -21,31 +23,33 @@ export function WeddingSettingsPage() {
   const qc = useQueryClient();
   const [form, setForm] = useState({ groomName: '', brideName: '', date: '', budget: '0' });
   const [success, setSuccess] = useState('');
+  const { markClean } = useUnsavedChanges(form);
   useEffect(() => {
-    if (client.data)
-      setForm({
+    if (client.data) {
+      const next = {
         groomName: client.data.groomName ?? '',
         brideName: client.data.brideName ?? '',
         date: client.data.date.slice(0, 10),
         budget: String(client.data.budget),
-      });
+      };
+      setForm(next);
+      markClean(next);
+    }
   }, [client.data]);
   const save = useMutation({
     mutationFn: api.updateWedding,
     onSuccess: (w) => {
       qc.setQueryData(['wedding'], w);
+      markClean(form);
       setSuccess(t('settings.saved'));
     },
   });
   if (client.isLoading) return <State>{t('settings.loading')}</State>;
   if (client.isError)
     return (
-      <State>
-        {t('settings.error')}{' '}
-        <button className="underline" onClick={() => client.refetch()}>
-          {t('common.tryAgain')}
-        </button>
-      </State>
+      <ErrorState onRetry={() => client.refetch()} retryLabel={t('common.tryAgain')}>
+        {t('settings.error')}
+      </ErrorState>
     );
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -63,28 +67,28 @@ export function WeddingSettingsPage() {
       <div className="grid max-w-2xl gap-5">
         <Card>
           <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
-            <Field label={t('settings.groomName')}>
+            <Field label={t('settings.groomName')} error={fieldErrors(save.error).groomName?.[0]}>
               <Input
                 value={form.groomName}
                 onChange={(event) => setForm({ ...form, groomName: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.brideName')}>
+            <Field label={t('settings.brideName')} error={fieldErrors(save.error).brideName?.[0]}>
               <Input
                 value={form.brideName}
                 onChange={(event) => setForm({ ...form, brideName: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.date')}>
+            <Field label={t('settings.date')} error={fieldErrors(save.error).date?.[0]}>
               <DateInput
                 value={form.date}
                 onChange={(event) => setForm({ ...form, date: event.target.value })}
                 required
               />
             </Field>
-            <Field label={t('settings.budget')}>
+            <Field label={t('settings.budget')} error={fieldErrors(save.error).budget?.[0]}>
               <Input
                 type="number"
                 min="0"

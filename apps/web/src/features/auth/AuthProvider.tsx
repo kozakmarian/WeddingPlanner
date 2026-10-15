@@ -1,7 +1,8 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, authToken, type User } from '../../lib/api';
 import { clearSession, establishSession } from './session';
+import { registerSessionInvalidator } from './session-invalidation';
 
 type AuthValue = {
   user: User | null;
@@ -22,6 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   const logout = () => clearSession(queryClient, setAuthenticated);
   const login = (user: User) => establishSession(queryClient, setAuthenticated, user);
+
+  useEffect(() => registerSessionInvalidator(logout), [queryClient]);
 
   return (
     <AuthContext.Provider

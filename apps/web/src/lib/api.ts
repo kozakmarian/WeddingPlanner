@@ -1,5 +1,6 @@
 import { buildApiUrl } from './api-url';
 import i18n from '../i18n';
+import { invalidateUnauthorizedSession } from '../features/auth/session-invalidation';
 
 export type User = { id: string; email: string; createdAt: string };
 export type Wedding = {
@@ -48,41 +49,89 @@ export const authToken = {
 export class ApiError extends Error {
   constructor(
     public status: number,
-    message: string,
+    message: string = apiErrorMessage(status),
+    public fieldErrors: Record<string, string[]> = {},
   ) {
     super(message);
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+export function apiErrorMessage(status: number, network = false) {
+  if (network) return i18n.t('api.networkError');
+  if (status === 400) return i18n.t('api.validationError');
+  if (status === 401) return i18n.t('api.unauthorized');
+  if (status === 403) return i18n.t('api.forbidden');
+  if (status === 404) return i18n.t('api.notFound');
+  if (status === 409) return i18n.t('api.conflict');
+  if (status >= 500) return i18n.t('api.serverError');
+  return i18n.t('api.genericError');
+}
+
+export function fieldErrors(error: unknown) {
+  return error instanceof ApiError ? error.fieldErrors : {};
+}
+
+async function errorFromResponse(response: Response) {
+  const body = (await response.json().catch(() => undefined)) as
+    { error?: { details?: { fieldErrors?: Record<string, string[]> } } } | undefined;
+  return new ApiError(
+    response.status,
+    apiErrorMessage(response.status),
+    body?.error?.details?.fieldErrors ?? {},
+  );
+}
+
+export async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  { invalidateOnUnauthorized = true }: { invalidateOnUnauthorized?: boolean } = {},
+): Promise<T> {
   const token = authToken.get();
-  const response = await fetch(buildApiUrl(path, import.meta.env.VITE_API_URL || '/api'), {
-    ...options,
-    headers: {
-      ...(options.body ? { 'content-type': 'application/json' } : {}),
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
-  if (!response.ok) {
-    const body = (await response.json().catch(() => undefined)) as
-      { error?: { message?: string } } | undefined;
-    if (response.status === 401) authToken.clear();
-    throw new ApiError(response.status, body?.error?.message ?? i18n.t('api.genericError'));
+  let response: Response;
+  try {
+    response = await fetch(buildApiUrl(path, import.meta.env.VITE_API_URL || '/api'), {
+      ...options,
+      headers: {
+        ...(options.body ? { 'content-type': 'application/json' } : {}),
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new ApiError(0, apiErrorMessage(0, true));
   }
-  return (response.status === 204 ? undefined : response.json()) as Promise<T>;
+  if (!response.ok) {
+    const error = await errorFromResponse(response);
+    if (response.status === 401 && invalidateOnUnauthorized)
+      invalidateUnauthorizedSession(token, authToken.get());
+    throw error;
+  }
+  if (response.status === 204) return undefined as T;
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new ApiError(0, i18n.t('api.invalidResponse'));
+  }
 }
 export const api = {
   register: (input: { email: string; password: string }) =>
-    request<{ user: User; token: string }>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    }),
+    request<{ user: User; token: string }>(
+      '/auth/register',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      { invalidateOnUnauthorized: false },
+    ),
   login: (input: { email: string; password: string }) =>
-    request<{ user: User; token: string }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    }),
+    request<{ user: User; token: string }>(
+      '/auth/login',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      { invalidateOnUnauthorized: false },
+    ),
   me: () => request<{ user: User }>('/auth/me'),
   wedding: () => request<Wedding>('/wedding'),
   updateWedding: (input: Pick<Wedding, 'groomName' | 'brideName' | 'date' | 'budget'>) =>

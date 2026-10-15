@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, type BudgetItem, type BudgetItemInput } from '../../lib/api';
+import { api, fieldErrors, type BudgetItem, type BudgetItemInput } from '../../lib/api';
 import { Button, Card, Field, Input, Notice, PageHeader, Select } from '../../components/ui';
 import { RecordActions } from '../../components/actions/RecordActions';
 import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/AsyncState';
 import { getLocale } from '../../i18n';
 import { calculateBudgetSummary } from './budget-summary';
+import { useUnsavedChanges } from '../../components/feedback/useUnsavedChanges';
 const blank = { name: '', category: '', actualCost: '' };
 const categories = [
   'Venue',
@@ -27,6 +28,7 @@ export function BudgetPage() {
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [success, setSuccess] = useState('');
+  const { markClean } = useUnsavedChanges(form);
   const save = useMutation({
     mutationFn: (input: BudgetItemInput) =>
       editing ? api.updateBudget(editing.id, input) : api.createBudget(input),
@@ -34,6 +36,7 @@ export function BudgetPage() {
       qc.invalidateQueries({ queryKey: ['budget'] });
       qc.invalidateQueries({ queryKey: ['wedding'] });
       setForm(blank);
+      markClean(blank);
       setEditing(null);
       setSuccess(t(editing ? 'budget.updated' : 'budget.added'));
     },
@@ -77,14 +80,14 @@ export function BudgetPage() {
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
-          <Field label={t('budget.item')}>
+          <Field label={t('budget.item')} error={fieldErrors(save.error).name?.[0]}>
             <Input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
             />
           </Field>
-          <Field label={t('budget.category')}>
+          <Field label={t('budget.category')} error={fieldErrors(save.error).category?.[0]}>
             <Select
               value={form.category}
               aria-label={t('budget.category')}
@@ -97,7 +100,7 @@ export function BudgetPage() {
               }))}
             />
           </Field>
-          <Field label={t('budget.price')}>
+          <Field label={t('budget.price')} error={fieldErrors(save.error).actualCost?.[0]}>
             <Input
               type="number"
               min="0"
@@ -117,6 +120,7 @@ export function BudgetPage() {
                 onClick={() => {
                   setEditing(null);
                   setForm(blank);
+                  markClean(blank);
                 }}
               >
                 {t('common.cancel')}
@@ -174,11 +178,13 @@ export function BudgetPage() {
                     <RecordActions
                       onEdit={() => {
                         setEditing(item);
-                        setForm({
+                        const next = {
                           name: item.name,
                           category: item.category,
                           actualCost: item.actualCost == null ? '' : String(item.actualCost),
-                        });
+                        };
+                        setForm(next);
+                        markClean(next);
                       }}
                       onDelete={() => {
                         if (confirm(t('budget.deleteConfirm', { name: item.name })))
@@ -193,6 +199,16 @@ export function BudgetPage() {
             </tbody>
           </table>
         </div>
+      )}
+      {remove.isError && (
+        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+          {remove.error.message}
+        </p>
+      )}
+      {remove.isPending && (
+        <p role="status" className="mt-4 text-sm text-[var(--text-muted)]">
+          {t('common.saving')}
+        </p>
       )}
     </section>
   );

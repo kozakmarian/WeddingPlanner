@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, type Guest } from '../../lib/api';
+import { api, fieldErrors, type Guest } from '../../lib/api';
 import {
   Badge,
   Button,
@@ -14,6 +14,8 @@ import {
   State,
 } from '../../components/ui';
 import { RecordActions } from '../../components/actions/RecordActions';
+import { useUnsavedChanges } from '../../components/feedback/useUnsavedChanges';
+import { ErrorState } from '../../components/feedback/AsyncState';
 const blank = {
   name: '',
   email: '',
@@ -28,11 +30,13 @@ export function GuestsPage() {
   const [f, setF] = useState(blank);
   const [edit, setEdit] = useState<Guest | null>(null);
   const [success, setSuccess] = useState('');
+  const { markClean } = useUnsavedChanges(f);
   const save = useMutation({
     mutationFn: (x: Omit<Guest, 'id'>) => (edit ? api.updateGuest(edit.id, x) : api.createGuest(x)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['guests'] });
       setF(blank);
+      markClean(blank);
       setEdit(null);
       setSuccess(t('guests.saved'));
     },
@@ -55,22 +59,21 @@ export function GuestsPage() {
   }
   function start(g: Guest) {
     setEdit(g);
-    setF({
+    const next = {
       name: g.name,
       email: g.email ?? '',
       attendance: g.attendance,
       accompanyingGuests: String(g.accompanyingGuests),
-    });
+    };
+    setF(next);
+    markClean(next);
   }
   if (q.isLoading) return <State>{t('guests.loading')}</State>;
   if (q.isError)
     return (
-      <State>
-        {t('guests.error')}{' '}
-        <button className="underline" onClick={() => q.refetch()}>
-          {t('common.tryAgain')}
-        </button>
-      </State>
+      <ErrorState onRetry={() => q.refetch()} retryLabel={t('common.tryAgain')}>
+        {t('guests.error')}
+      </ErrorState>
     );
   return (
     <section>
@@ -81,17 +84,17 @@ export function GuestsPage() {
       </PageHeader>
       <Card>
         <form onSubmit={submit} className="grid gap-4 md:grid-cols-4">
-          <Field label={t('guests.name')}>
+          <Field label={t('guests.name')} error={fieldErrors(save.error).name?.[0]}>
             <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
           </Field>
-          <Field label={t('guests.email')}>
+          <Field label={t('guests.email')} error={fieldErrors(save.error).email?.[0]}>
             <Input
               type="email"
               value={f.email}
               onChange={(e) => setF({ ...f, email: e.target.value })}
             />
           </Field>
-          <Field label={t('guests.attendance')}>
+          <Field label={t('guests.attendance')} error={fieldErrors(save.error).attendance?.[0]}>
             <Select
               value={f.attendance}
               aria-label={t('guests.attendance')}
@@ -105,7 +108,10 @@ export function GuestsPage() {
               ]}
             />
           </Field>
-          <Field label={t('guests.plusOnes')}>
+          <Field
+            label={t('guests.plusOnes')}
+            error={fieldErrors(save.error).accompanyingGuests?.[0]}
+          >
             <Input
               type="number"
               min="0"
@@ -114,7 +120,9 @@ export function GuestsPage() {
             />
           </Field>
           <div className="flex gap-2 md:col-span-4">
-            <Button disabled={save.isPending}>{t(edit ? 'guests.save' : 'guests.add')}</Button>
+            <Button disabled={save.isPending}>
+              {save.isPending ? t('common.saving') : t(edit ? 'guests.save' : 'guests.add')}
+            </Button>
             {edit && (
               <Button
                 type="button"
@@ -122,18 +130,34 @@ export function GuestsPage() {
                 onClick={() => {
                   setEdit(null);
                   setF(blank);
+                  markClean(blank);
                 }}
               >
                 {t('common.cancel')}
               </Button>
             )}
           </div>
+          {save.isError && (
+            <p role="alert" className="text-sm text-[var(--error)] md:col-span-4">
+              {save.error.message}
+            </p>
+          )}
         </form>
       </Card>
       {success && (
         <div className="mt-4">
           <Notice>{success}</Notice>
         </div>
+      )}
+      {del.isError && (
+        <p role="alert" className="mt-4 text-sm text-[var(--error)]">
+          {del.error.message}
+        </p>
+      )}
+      {del.isPending && (
+        <p role="status" className="mt-4 text-sm text-[var(--text-muted)]">
+          {t('common.saving')}
+        </p>
       )}
       <div className="mt-5 grid gap-3">
         {q.data!.length === 0 ? (

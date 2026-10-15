@@ -14,10 +14,11 @@ export function clearSession(
 }
 
 export function establishSession(
-  queryClient: Pick<QueryClient, 'setQueryData'>,
+  queryClient: Pick<QueryClient, 'clear' | 'setQueryData'>,
   setAuthenticated: (value: boolean) => void,
   user: User,
 ) {
+  queryClient.clear();
   queryClient.setQueryData(['auth', 'me'], { user });
   setAuthenticated(true);
 }
