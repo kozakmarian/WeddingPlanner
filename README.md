@@ -42,6 +42,7 @@ The seed creates `demo@weddingplanner.test` with password `password123` plus a c
 | `npm run db:migrate`                        | Apply committed Prisma migrations                                                |
 | `npm run db:migrate:dev`                    | Create a new migration during development                                        |
 | `npm test --workspace=@wedding-planner/api` | Initialize an isolated database in `C:/tmp` and run API integration tests        |
+| `npm test --workspace=@wedding-planner/web` | Run frontend unit tests                                                          |
 
 ## API
 
