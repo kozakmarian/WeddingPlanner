@@ -1,7 +1,13 @@
 import { z } from 'zod';
-export const updateWeddingSchema = z.object({
-  groomName: z.string().trim().min(1),
-  brideName: z.string().trim().min(1),
-  date: z.coerce.date(),
-  budget: z.coerce.number().nonnegative(),
-});
+import { dateOnlySchema, nonnegativeNumber } from '../../lib/validation.js';
+
+const personName = z.string().trim().min(1).max(100);
+
+export const updateWeddingSchema = z
+  .object({
+    groomName: personName,
+    brideName: personName,
+    date: dateOnlySchema,
+    budget: nonnegativeNumber(),
+  })
+  .strict();
