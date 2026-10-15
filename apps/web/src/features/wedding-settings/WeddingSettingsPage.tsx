@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { api, fieldErrors } from '../../lib/api';
 import {
   Button,
@@ -16,9 +17,12 @@ import {
 import { supportedLanguages } from '../../i18n';
 import { useUnsavedChanges } from '../../components/feedback/useUnsavedChanges';
 import { ErrorState } from '../../components/feedback/AsyncState';
+import { useAuth } from '../auth/AuthProvider';
 
 export function WeddingSettingsPage() {
   const { t, i18n } = useTranslation();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const client = useQuery({ queryKey: ['wedding'], queryFn: api.wedding });
   const qc = useQueryClient();
   const [form, setForm] = useState({ groomName: '', brideName: '', date: '', budget: '0' });
@@ -129,6 +133,19 @@ export function WeddingSettingsPage() {
             />
           </div>
         </Card>
+        <div className="md:hidden">
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              logout();
+              navigate('/login', { replace: true });
+            }}
+          >
+            {t('nav.logout')}
+          </Button>
+        </div>
       </div>
     </section>
   );
